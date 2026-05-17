@@ -1,8 +1,14 @@
+import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { TopNavbar } from '../components/TopNavbar';
+import { SubToolbar } from '../components/SubToolbar';
+import { FeedContent } from '../components/FeedContent';
+import { ProfileContent } from '../components/ProfileContent';
 
 export function HomePage() {
-  const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<'feed' | 'profile'>('feed');
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -10,30 +16,26 @@ export function HomePage() {
     navigate('/auth');
   };
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-600">SockNetwork</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-700">Welcome, {user?.name}</span>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </nav>
+  const handleTabChange = (tab: 'feed' | 'profile') => {
+    setActiveTab(tab);
+  };
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">Welcome to SockNetwork!</h2>
-          <p className="text-gray-600">
-            More features coming soon... Posts, Friends, Chat, and more!
-          </p>
-        </div>
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      <TopNavbar activeTab={activeTab} onTabChange={handleTabChange} />
+
+      <button
+        onClick={handleLogout}
+        className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-600 z-10"
+      >
+        Logout
+      </button>
+
+      <SubToolbar activeTab={activeTab} />
+
+      <main className="flex-1">
+        {activeTab === 'feed' && <FeedContent />}
+        {activeTab === 'profile' && <ProfileContent />}
       </main>
     </div>
   );
