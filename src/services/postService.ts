@@ -77,6 +77,24 @@ const postService = {
     const data = await response.json();
     return Array.isArray(data) ? data : data.posts || [];
   },
+
+  async getPostById(postId: string): Promise<Post> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/posts/${postId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch post');
+    }
+
+    return response.json();
+  },
 };
 
 export default postService;

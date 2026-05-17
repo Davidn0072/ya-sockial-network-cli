@@ -1,10 +1,25 @@
+import { useState } from 'react';
 import type { Post } from '../services/postService';
+import postService from '../services/postService';
 
 interface PostCardProps {
   post: Post;
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const [content, setContent] = useState(post.content);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleShowMore = async () => {
+    try {
+      console.log('Loading full content for post:', post._id);
+      const fullPost = await postService.getPostById(post._id);
+      setContent(fullPost.content);
+      setIsExpanded(true);
+    } catch (err) {
+      console.error('Error loading full content:', err);
+    }
+  };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -61,7 +76,25 @@ export function PostCard({ post }: PostCardProps) {
       </div>
 
       {/* Post Content */}
-      <p className="text-gray-800 mb-4">{post.content}</p>
+      <div className="text-gray-800 mb-4">
+        {post.hasMore && !isExpanded ? (
+          <p>
+            {content}
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleShowMore();
+              }}
+              className="text-blue-500 hover:underline font-bold cursor-pointer"
+            >
+              {' '}MORE...
+            </a>
+          </p>
+        ) : (
+          <p>{content}</p>
+        )}
+      </div>
 
       {/* Post Images */}
       {post.images && post.images.length > 0 && (
