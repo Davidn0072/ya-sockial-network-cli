@@ -36,10 +36,19 @@ export function FeedContent() {
 
   const handleLoadMore = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
+    const scrollPos = window.scrollY;
+    document.body.style.overflow = 'hidden';
 
     setIsLoadingMore(true);
     await loadMore();
-    setIsLoadingMore(false);
+
+    setTimeout(() => {
+      document.body.style.overflow = '';
+      window.scrollTo({ top: scrollPos, behavior: 'auto' });
+      setIsLoadingMore(false);
+    }, 0);
   };
 
   return (
