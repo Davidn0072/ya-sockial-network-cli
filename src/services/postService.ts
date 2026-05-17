@@ -26,9 +26,12 @@ export type Post = {
 };
 
 const postService = {
-  async getPosts(): Promise<Post[]> {
+  async getPosts(cursor: string | null = null, limit: number = 10): Promise<{ posts: Post[]; nextCursor: string | null }> {
     const token = authService.getToken();
-    const url = `${API_URL}/posts`;
+    let url = `${API_URL}/posts?limit=${limit}`;
+    if (cursor) {
+      url += `&cursor=${cursor}`;
+    }
 
     console.log('🔗 Calling endpoint:', url);
     console.log('📦 Token:', token ? '✓ Token exists' : '❌ No token');
@@ -51,7 +54,9 @@ const postService = {
 
     const data = await response.json();
     console.log('✅ Posts data:', data);
-    return Array.isArray(data) ? data : data.posts || [];
+    const posts = Array.isArray(data) ? data : data.posts || [];
+    const nextCursor = data.nextCursor || null;
+    return { posts, nextCursor };
   },
 
   async getPostsByUser(userId: string): Promise<Post[]> {

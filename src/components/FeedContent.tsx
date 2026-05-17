@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { usePost } from '../hooks/usePost';
 import { PostCard } from './PostCard';
 
 export function FeedContent() {
-  const { posts, isLoading, error } = usePost();
+  const { posts, isLoading, error, hasMore, loadMore } = usePost();
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   if (isLoading) {
     return (
@@ -32,11 +34,37 @@ export function FeedContent() {
     );
   }
 
+  const handleLoadMore = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    setIsLoadingMore(true);
+    await loadMore();
+    setIsLoadingMore(false);
+  };
+
   return (
     <div className="max-w-2xl mx-auto py-6 space-y-6">
       {posts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
+
+      {hasMore && (
+        <div className="text-center py-6">
+          <button
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition font-medium"
+          >
+            {isLoadingMore ? 'Loading...' : '📥 Show More'}
+          </button>
+        </div>
+      )}
+
+      {!hasMore && posts.length > 0 && (
+        <div className="text-center py-6 text-gray-500">
+          No more posts to load
+        </div>
+      )}
     </div>
   );
 }
