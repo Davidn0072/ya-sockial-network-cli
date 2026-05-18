@@ -1,3 +1,4 @@
+import { ReactionButton } from './ReactionButton';
 
 interface PostActionsProps {
   postId: string;
@@ -10,7 +11,8 @@ interface PostActionsProps {
   };
   commentsCount?: number;
   filesCount?: number;
-  onReactionsClick?: () => void;
+  onReactionSuccess?: () => void;
+  onViewReactions?: () => void;
   onCommentsClick?: () => void;
   onFilesClick?: () => void;
   onEditClick?: () => void;
@@ -18,11 +20,12 @@ interface PostActionsProps {
 }
 
 export function PostActions({
-  postId: _postId,
+  postId,
   likesStats,
   commentsCount = 0,
   filesCount = 0,
-  onReactionsClick,
+  onReactionSuccess,
+  onViewReactions,
   onCommentsClick,
   onFilesClick,
   onEditClick,
@@ -34,14 +37,16 @@ export function PostActions({
     <div className="border-t border-gray-200 pt-4 mt-4">
       <div className="flex gap-4 text-sm text-gray-600">
         {/* Reactions */}
-        <button
-          onClick={onReactionsClick}
-          className="flex items-center gap-2 hover:text-blue-500 transition-colors flex-1 justify-center py-2 hover:bg-gray-50 rounded"
-        >
-          <span className="text-lg">👍</span>
+        <div className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-gray-50 rounded transition-colors">
+          <ReactionButton
+            targetId={postId}
+            targetType="post"
+            onReactionSuccess={onReactionSuccess}
+            onViewReactions={onViewReactions}
+          />
           <span>{totalReactions}</span>
           <span className="text-xs">Reactions</span>
-        </button>
+        </div>
 
         {/* Comments */}
         <button

@@ -87,7 +87,8 @@ export function CommentItem({ comment }: CommentItemProps) {
         <CommentActions
           commentId={comment._id}
           likesStats={likesStats}
-          onReactionsClick={() => setIsLikesPopupOpen(true)}
+          onReactionSuccess={loadLikesStats}
+          onViewReactions={() => setIsLikesPopupOpen(true)}
         />
       </div>
 

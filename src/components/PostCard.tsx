@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Post } from '../services/postService';
 import postService from '../services/postService';
 import { PostActions } from './PostActions';
 import { FilesGrid } from './FilesGrid';
 import LikesPopup from './LikesPopup';
 import { CommentsSection } from './CommentsSection';
+import { fetchLikesStats } from '../services/likesService';
 
 interface PostCardProps {
   post: Post;
@@ -17,8 +18,30 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [likesStats, setLikesStats] = useState(post.likesStats || { total: 0, like: 0, love: 0, celebrate: 0, insightful: 0 });
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    loadLikesStats();
+  }, [post._id]);
+
+  const loadLikesStats = async () => {
+    try {
+      const stats = await fetchLikesStats(post._id, 'post');
+      if (stats) {
+        setLikesStats({
+          total: stats.total || 0,
+          like: stats.like || 0,
+          love: stats.love || 0,
+          celebrate: stats.celebrate || 0,
+          insightful: stats.insightful || 0
+        });
+      }
+    } catch (err) {
+      console.error('Error loading likes stats:', err);
+    }
+  };
 
   const handleShowMore = async () => {
     try {
@@ -144,10 +167,11 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
       {/* Post Actions */}
       <PostActions
         postId={post._id}
-        likesStats={post.likesStats}
+        likesStats={likesStats}
         commentsCount={post.commentsCount}
         filesCount={post.filesCount}
-        onReactionsClick={() => setIsLikesPopupOpen(true)}
+        onReactionSuccess={loadLikesStats}
+        onViewReactions={() => setIsLikesPopupOpen(true)}
         onCommentsClick={() => setShowComments(!showComments)}
         onFilesClick={() => setShowFiles(!showFiles)}
         onEditClick={() => onEditPost?.(post)}

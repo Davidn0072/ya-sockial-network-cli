@@ -1,3 +1,5 @@
+import { ReactionButton } from './ReactionButton';
+
 interface CommentActionsProps {
   commentId: string;
   likesStats?: {
@@ -8,26 +10,32 @@ interface CommentActionsProps {
     insightful?: number;
     funny?: number;
   };
-  onReactionsClick?: () => void;
+  onReactionSuccess?: () => void;
+  onViewReactions?: () => void;
 }
 
 export function CommentActions({
-  commentId: _commentId,
+  commentId,
   likesStats,
-  onReactionsClick,
+  onReactionSuccess,
+  onViewReactions,
 }: CommentActionsProps) {
   const totalReactions = likesStats?.total || 0;
 
   return (
-    <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-      {/* Reactions */}
-      <button
-        onClick={onReactionsClick}
-        className="flex items-center gap-1 hover:text-blue-500 transition-colors py-1 px-2 hover:bg-gray-100 rounded"
-      >
-        <span className="text-sm">👍</span>
-        <span>{totalReactions}</span>
-      </button>
+    <div className="flex items-center gap-2 mt-2">
+      {/* Reaction Button */}
+      <ReactionButton
+        targetId={commentId}
+        targetType="comment"
+        onReactionSuccess={onReactionSuccess}
+        onViewReactions={onViewReactions}
+      />
+
+      {/* Likes Count */}
+      {totalReactions > 0 && (
+        <span className="text-xs text-gray-500">{totalReactions} reactions</span>
+      )}
     </div>
   );
 }
