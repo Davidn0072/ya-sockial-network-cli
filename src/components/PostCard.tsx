@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Post } from '../services/postService';
 import postService from '../services/postService';
+import { PostActions } from './PostActions';
 
 interface PostCardProps {
   post: Post;
@@ -117,6 +118,13 @@ export function PostCard({ post }: PostCardProps) {
           )}
         </div>
       )}
+
+      {/* Post Actions */}
+      <PostActions
+        likesStats={post.likesStats}
+        commentsCount={post.commentsCount}
+        filesCount={post.filesCount}
+      />
     </div>
   );
 }
