@@ -20,6 +20,7 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [currentQuery, setCurrentQuery] = useState('');
   const [prevCursors, setPrevCursors] = useState<string[]>([]);
+  const [isAIMode, setIsAIMode] = useState(false);
 
   const handleSearchAuthorChange = async (value: string) => {
     setSearchAuthor(value);
@@ -107,14 +108,37 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     onSearch?.('', null);
   };
 
+  const handleAllPosts = () => {
+    setIsAIMode(false);
+    onSearch?.(searchText.trim(), selectedUserId);
+  };
+
+  const handleAIRecommendations = () => {
+    setIsAIMode(true);
+  };
+
   if (activeTab === 'feed') {
     return (
       <div className="bg-gray-50 border-b border-gray-200 shadow-sm pb-6 pt-6">
         <div className="max-w-7xl mx-auto px-4 flex items-center gap-3">
-          <button className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition font-medium">
+          <button
+            onClick={handleAllPosts}
+            className={`flex-1 py-2 rounded-lg transition font-medium ${
+              !isAIMode
+                ? 'bg-blue-600 text-white'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          >
             📋 All Posts
           </button>
-          <button className="flex-1 bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition font-medium">
+          <button
+            onClick={handleAIRecommendations}
+            className={`flex-1 py-2 rounded-lg transition font-medium ${
+              isAIMode
+                ? 'bg-purple-600 text-white'
+                : 'bg-purple-500 text-white hover:bg-purple-600'
+            }`}
+          >
             ✨ AI Recommendations
           </button>
         </div>
@@ -130,7 +154,10 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleSearch}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isAIMode}
+              className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isAIMode ? 'bg-gray-200 cursor-not-allowed' : ''
+              }`}
             />
             <div className="flex-1 relative">
               <input
@@ -139,7 +166,10 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
                 value={searchAuthor}
                 onChange={(e) => handleSearchAuthorChange(e.target.value)}
                 onKeyDown={handleSearch}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isAIMode}
+                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  isAIMode ? 'bg-gray-200 cursor-not-allowed' : ''
+                }`}
               />
               {showSuggestions && (
                 <div
@@ -194,14 +224,24 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
 
           <button
             onClick={performSearch}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+            disabled={isAIMode}
+            className={`px-4 py-2 rounded-lg transition ${
+              isAIMode
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
           >
             🔍 Search
           </button>
 
           <button
             onClick={handleClear}
-            className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+            disabled={isAIMode}
+            className={`px-4 py-2 rounded-lg transition ${
+              isAIMode
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-400 text-white hover:bg-gray-500'
+            }`}
           >
             ✕ Clear
           </button>
