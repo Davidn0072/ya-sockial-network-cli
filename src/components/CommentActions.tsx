@@ -23,7 +23,7 @@ export function CommentActions({
   const totalReactions = likesStats?.total || 0;
 
   return (
-    <div className="flex items-center gap-2 mt-2">
+    <div className="flex items-center gap-3 mt-2">
       {/* Reaction Button */}
       <ReactionButton
         targetId={commentId}
@@ -36,6 +36,20 @@ export function CommentActions({
       {totalReactions > 0 && (
         <span className="text-xs text-gray-500">{totalReactions} reactions</span>
       )}
+
+      {/* Reply Button */}
+      <button
+        className="text-xs text-gray-500 hover:text-gray-700 hover:font-semibold transition-colors"
+      >
+        Reply
+      </button>
+
+      {/* Show Replies Link */}
+      <button
+        className="text-xs text-blue-500 hover:text-blue-700 hover:underline transition-colors"
+      >
+        Show Replies
+      </button>
     </div>
   );
 }
