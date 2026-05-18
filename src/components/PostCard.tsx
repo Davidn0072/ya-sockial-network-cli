@@ -4,6 +4,7 @@ import postService from '../services/postService';
 import { PostActions } from './PostActions';
 import { FilesGrid } from './FilesGrid';
 import LikesPopup from './LikesPopup';
+import { CommentsSection } from './CommentsSection';
 
 interface PostCardProps {
   post: Post;
@@ -15,6 +16,7 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
   const [content, setContent] = useState(post.content);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -146,6 +148,7 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
         commentsCount={post.commentsCount}
         filesCount={post.filesCount}
         onReactionsClick={() => setIsLikesPopupOpen(true)}
+        onCommentsClick={() => setShowComments(!showComments)}
         onFilesClick={() => setShowFiles(!showFiles)}
         onEditClick={() => onEditPost?.(post)}
         onDeleteClick={handleDeletePost}
@@ -154,6 +157,11 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
       {/* Files Grid */}
       {showFiles && post.filesCount && post.filesCount > 0 && (
         <FilesGrid postId={post._id} />
+      )}
+
+      {/* Comments Section */}
+      {showComments && (
+        <CommentsSection postId={post._id} />
       )}
 
       {/* Likes Popup */}
