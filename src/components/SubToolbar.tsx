@@ -17,22 +17,39 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [currentQuery, setCurrentQuery] = useState('');
 
   const handleSearchAuthorChange = async (value: string) => {
     setSearchAuthor(value);
+    setCurrentQuery(value);
     if (value.trim()) {
       try {
-        const users = await userService.searchUsers(value);
-        setUserSuggestions(users.slice(0, 10));
+        const result = await userService.searchUsers(value);
+        setUserSuggestions(result.users);
+        setNextCursor(result.nextCursor);
         setShowSuggestions(true);
       } catch (error) {
         console.error('Error searching users:', error);
         setUserSuggestions([]);
+        setNextCursor(null);
       }
     } else {
       setUserSuggestions([]);
       setShowSuggestions(false);
       setSelectedUserId(null);
+      setNextCursor(null);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (!nextCursor || !currentQuery.trim()) return;
+    try {
+      const result = await userService.searchUsers(currentQuery, nextCursor);
+      setUserSuggestions((prev) => [...prev, ...result.users]);
+      setNextCursor(result.nextCursor);
+    } catch (error) {
+      console.error('Error loading more users:', error);
     }
   };
 
@@ -84,11 +101,19 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
                     <div
                       key={user._id}
                       onClick={() => handleUserSelect(user)}
-                      className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
                     >
                       {user.name}
                     </div>
                   ))}
+                  {nextCursor && (
+                    <button
+                      onClick={handleLoadMore}
+                      className="w-full px-4 py-2 text-blue-600 hover:bg-blue-50 font-medium text-sm"
+                    >
+                      NEXT →
+                    </button>
+                  )}
                 </div>
               )}
             </div>

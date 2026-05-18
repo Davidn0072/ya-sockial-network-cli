@@ -9,12 +9,20 @@ interface User {
   user?: string;
 }
 
+interface SearchResult {
+  users: User[];
+  nextCursor: string | null;
+}
+
 export const userService = {
-  async searchUsers(query: string): Promise<User[]> {
-    if (!query.trim()) return [];
+  async searchUsers(query: string, cursor: string | null = null): Promise<SearchResult> {
+    if (!query.trim()) return { users: [], nextCursor: null };
 
     const token = authService.getToken();
-    const searchParams = new URLSearchParams({ q: query });
+    const searchParams = new URLSearchParams({ q: query, limit: '10' });
+    if (cursor) {
+      searchParams.set('cursor', cursor);
+    }
 
     try {
       const response = await fetch(`${API_URL}/users/search?${searchParams.toString()}`, {
@@ -27,15 +35,16 @@ export const userService = {
 
       if (!response.ok) {
         console.error('Failed to search users');
-        return [];
+        return { users: [], nextCursor: null };
       }
 
       const data = await response.json();
       const users = Array.isArray(data) ? data : data.users || [];
-      return users;
+      const nextCursor = (!Array.isArray(data) && data.nextCursor) || null;
+      return { users, nextCursor };
     } catch (error) {
       console.error('Error searching users:', error);
-      return [];
+      return { users: [], nextCursor: null };
     }
   },
 
