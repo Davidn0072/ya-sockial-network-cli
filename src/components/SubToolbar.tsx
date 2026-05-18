@@ -6,9 +6,41 @@ interface SubToolbarProps {
   onSearch?: (searchText: string, userId: string | null) => void;
 }
 
+interface User {
+  _id: string;
+  name: string;
+}
+
 export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
   const [searchText, setSearchText] = useState('');
   const [searchAuthor, setSearchAuthor] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const handleSearchAuthorChange = async (value: string) => {
+    setSearchAuthor(value);
+    if (value.trim()) {
+      try {
+        const users = await userService.searchUsers(value);
+        setUserSuggestions(users);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error searching users:', error);
+        setUserSuggestions([]);
+      }
+    } else {
+      setUserSuggestions([]);
+      setShowSuggestions(false);
+      setSelectedUserId(null);
+    }
+  };
+
+  const handleUserSelect = (user: User) => {
+    setSearchAuthor(user.name);
+    setSelectedUserId(user._id);
+    setShowSuggestions(false);
+  };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -16,12 +48,8 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     }
   };
 
-  const performSearch = async () => {
-    let userId: string | null = null;
-    if (searchAuthor.trim()) {
-      userId = await userService.resolveUserIdFromUsername(searchAuthor.trim());
-    }
-    onSearch?.(searchText.trim(), userId);
+  const performSearch = () => {
+    onSearch?.(searchText.trim(), selectedUserId);
   };
 
   if (activeTab === 'feed') {
@@ -41,14 +69,29 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
               onKeyDown={handleSearch}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <input
-              type="text"
-              placeholder="👤 Search users..."
-              value={searchAuthor}
-              onChange={(e) => setSearchAuthor(e.target.value)}
-              onKeyDown={handleSearch}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="👤 Search users..."
+                value={searchAuthor}
+                onChange={(e) => handleSearchAuthorChange(e.target.value)}
+                onKeyDown={handleSearch}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {showSuggestions && userSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto">
+                  {userSuggestions.map((user) => (
+                    <div
+                      key={user._id}
+                      onClick={() => handleUserSelect(user)}
+                      className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                    >
+                      {user.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <button
