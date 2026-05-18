@@ -8,6 +8,8 @@ import { ProfileContent } from '../components/ProfileContent';
 
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<'feed' | 'profile'>('feed');
+  const [searchText, setSearchText] = useState('');
+  const [searchAuthor, setSearchAuthor] = useState<string | null>(null);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -18,6 +20,11 @@ export function HomePage() {
 
   const handleTabChange = (tab: 'feed' | 'profile') => {
     setActiveTab(tab);
+  };
+
+  const handleSearch = (text: string, author: string | null) => {
+    setSearchText(text);
+    setSearchAuthor(author);
   };
 
   return (
@@ -31,10 +38,10 @@ export function HomePage() {
         Logout
       </button>
 
-      <SubToolbar activeTab={activeTab} />
+      <SubToolbar activeTab={activeTab} onSearch={handleSearch} />
 
       <main className="flex-1">
-        {activeTab === 'feed' && <FeedContent />}
+        {activeTab === 'feed' && <FeedContent searchText={searchText} searchAuthor={searchAuthor} />}
         {activeTab === 'profile' && <ProfileContent />}
       </main>
     </div>

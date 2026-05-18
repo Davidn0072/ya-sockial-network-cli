@@ -1,8 +1,29 @@
+import { useState } from 'react';
+import { userService } from '../services/userService';
+
 interface SubToolbarProps {
   activeTab: 'feed' | 'profile';
+  onSearch?: (searchText: string, userId: string | null) => void;
 }
 
-export function SubToolbar({ activeTab }: SubToolbarProps) {
+export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
+  const [searchText, setSearchText] = useState('');
+  const [searchAuthor, setSearchAuthor] = useState('');
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      performSearch();
+    }
+  };
+
+  const performSearch = async () => {
+    let userId: string | null = null;
+    if (searchAuthor.trim()) {
+      userId = await userService.resolveUserIdFromUsername(searchAuthor.trim());
+    }
+    onSearch?.(searchText.trim(), userId);
+  };
+
   if (activeTab === 'feed') {
     return (
       <div className="bg-gray-50 border-b border-gray-200 shadow-sm">
@@ -15,17 +36,26 @@ export function SubToolbar({ activeTab }: SubToolbarProps) {
             <input
               type="text"
               placeholder="🔍 Search posts..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={handleSearch}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="text"
               placeholder="👤 Search users..."
+              value={searchAuthor}
+              onChange={(e) => setSearchAuthor(e.target.value)}
+              onKeyDown={handleSearch}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition">
-            ⚙️ Filter
+          <button
+            onClick={performSearch}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+          >
+            🔍 Search
           </button>
         </div>
       </div>

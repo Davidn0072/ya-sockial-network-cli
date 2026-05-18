@@ -11,7 +11,7 @@ interface UsePostReturn {
   refetch: () => Promise<void>;
 }
 
-export function usePost(): UsePostReturn {
+export function usePost(searchText: string = '', searchAuthor: string | null = null): UsePostReturn {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,8 +23,8 @@ export function usePost(): UsePostReturn {
     try {
       setIsLoading(true);
       setError(null);
-      console.log(`Fetching posts... cursor=${cursor}, limit=${LIMIT}`);
-      const { posts: newPosts, nextCursor: newNextCursor } = await postService.getPosts(cursor, LIMIT);
+      console.log(`Fetching posts... cursor=${cursor}, limit=${LIMIT}, search=${searchText}, author=${searchAuthor}`);
+      const { posts: newPosts, nextCursor: newNextCursor } = await postService.getPosts(cursor, LIMIT, searchText, searchAuthor);
       console.log('Posts received:', newPosts, 'nextCursor:', newNextCursor);
 
       if (append) {
@@ -48,7 +48,7 @@ export function usePost(): UsePostReturn {
 
   useEffect(() => {
     fetchPosts(null, false);
-  }, []);
+  }, [searchText, searchAuthor]);
 
   const loadMore = async () => {
     await fetchPosts(nextCursor, true);

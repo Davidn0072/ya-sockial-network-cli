@@ -2,8 +2,13 @@ import { useState } from 'react';
 import { usePost } from '../hooks/usePost';
 import { PostCard } from './PostCard';
 
-export function FeedContent() {
-  const { posts, isLoading, error, hasMore, loadMore } = usePost();
+interface FeedContentProps {
+  searchText?: string;
+  searchAuthor?: string | null;
+}
+
+export function FeedContent({ searchText = '', searchAuthor = null }: FeedContentProps) {
+  const { posts, isLoading, error, hasMore, loadMore } = usePost(searchText, searchAuthor);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   if (isLoading) {

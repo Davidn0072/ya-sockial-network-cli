@@ -26,11 +26,22 @@ export type Post = {
 };
 
 const postService = {
-  async getPosts(cursor: string | null = null, limit: number = 10): Promise<{ posts: Post[]; nextCursor: string | null }> {
+  async getPosts(
+    cursor: string | null = null,
+    limit: number = 10,
+    search: string = '',
+    authorId: string | null = null
+  ): Promise<{ posts: Post[]; nextCursor: string | null }> {
     const token = authService.getToken();
     let url = `${API_URL}/posts?limit=${limit}`;
     if (cursor) {
       url += `&cursor=${cursor}`;
+    }
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    if (authorId) {
+      url += `&userId=${encodeURIComponent(authorId)}`;
     }
 
     console.log('🔗 Calling endpoint:', url);
