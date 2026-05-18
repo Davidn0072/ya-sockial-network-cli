@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface ReactionButtonProps {
   targetId: string;
@@ -21,8 +21,10 @@ export function ReactionButton({
   onReactionSuccess,
   onViewReactions
 }: ReactionButtonProps) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
 
   const handleReactionClick = async (reactionType: string) => {
     setIsLoading(true);
@@ -61,11 +63,23 @@ export function ReactionButton({
     }
   };
 
+  const handleButtonClick = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setPopupPosition({
+        top: rect.bottom + 10,
+        left: rect.left + rect.width / 2
+      });
+    }
+    setIsOpen(true);
+  };
+
   return (
     <>
       {/* Emoji Button */}
       <button
-        onClick={() => setIsOpen(true)}
+        ref={buttonRef}
+        onClick={handleButtonClick}
         disabled={isLoading}
         className="text-xl hover:scale-125 transition-transform disabled:opacity-50 cursor-pointer"
         title="React"
@@ -78,12 +92,19 @@ export function ReactionButton({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/30 z-40"
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Popup Container */}
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+          <div
+            className="fixed z-50"
+            style={{
+              top: `${popupPosition.top}px`,
+              left: `${popupPosition.left}px`,
+              transform: 'translateX(-50%)'
+            }}
+          >
             <div className="bg-white rounded-lg shadow-2xl p-4 border border-gray-200">
               {/* Emojis Row */}
               <div className="flex gap-4 pb-3 border-b border-gray-200 justify-center">
