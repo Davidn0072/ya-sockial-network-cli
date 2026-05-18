@@ -59,6 +59,16 @@ export function HomePage() {
     setAiRecommendations([]);
   };
 
+  const handleEditPostClick = async (post: Post) => {
+    try {
+      const fullPost = await postService.getPostById(post._id);
+      setEditingPost({ _id: fullPost._id, content: fullPost.content });
+      setIsCreatePostOpen(true);
+    } catch (error) {
+      console.error('Error loading post for editing:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <TopNavbar activeTab={activeTab} onTabChange={handleTabChange} />
@@ -84,10 +94,7 @@ export function HomePage() {
             searchText={searchText}
             searchAuthor={selectedUserId}
             aiPosts={aiRecommendations}
-            onEditPost={(post) => {
-              setEditingPost({ _id: post._id, content: post.content });
-              setIsCreatePostOpen(true);
-            }}
+            onEditPost={handleEditPostClick}
           />
         )}
         {activeTab === 'profile' && <ProfileContent />}
