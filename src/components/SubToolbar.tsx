@@ -94,6 +94,18 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     onSearch?.(searchText.trim(), selectedUserId);
   };
 
+  const handleClear = () => {
+    setSearchText('');
+    setSearchAuthor('');
+    setSelectedUserId(null);
+    setUserSuggestions([]);
+    setShowSuggestions(false);
+    setPrevCursors([]);
+    setNextCursor(null);
+    setCurrentQuery('');
+    onSearch?.('', null);
+  };
+
   if (activeTab === 'feed') {
     return (
       <div className="bg-gray-50 border-b border-gray-200 shadow-sm">
@@ -176,6 +188,13 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
           >
             🔍 Search
+          </button>
+
+          <button
+            onClick={handleClear}
+            className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+          >
+            ✕ Clear
           </button>
         </div>
       </div>
