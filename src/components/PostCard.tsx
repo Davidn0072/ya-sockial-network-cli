@@ -8,13 +8,15 @@ import LikesPopup from './LikesPopup';
 interface PostCardProps {
   post: Post;
   onEditPost?: (post: Post) => void;
+  onDeletePost?: (postId: string) => void;
 }
 
-export function PostCard({ post, onEditPost }: PostCardProps) {
+export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
   const [content, setContent] = useState(post.content);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleShowMore = async () => {
     try {
@@ -24,6 +26,19 @@ export function PostCard({ post, onEditPost }: PostCardProps) {
       setIsExpanded(true);
     } catch (err) {
       console.error('Error loading full content:', err);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    setIsDeleting(true);
+    try {
+      await postService.deletePost(post._id);
+      onDeletePost?.(post._id);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete post';
+      alert(errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
   };
   const formatDate = (dateString: string) => {
@@ -133,9 +148,7 @@ export function PostCard({ post, onEditPost }: PostCardProps) {
         onReactionsClick={() => setIsLikesPopupOpen(true)}
         onFilesClick={() => setShowFiles(!showFiles)}
         onEditClick={() => onEditPost?.(post)}
-        onDeleteClick={() => {
-          console.log('Delete post:', post._id);
-        }}
+        onDeleteClick={handleDeletePost}
       />
 
       {/* Files Grid */}

@@ -193,6 +193,32 @@ const postService = {
 
     return data;
   },
+
+  async deletePost(postId: string): Promise<void> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/posts/${postId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      let errorMessage = 'Failed to delete post';
+      if (typeof data === 'string') {
+        errorMessage = data;
+      } else if (data && data.message) {
+        errorMessage = data.message;
+      } else if (data && data.error) {
+        errorMessage = data.error;
+      }
+      throw new Error(errorMessage);
+    }
+  },
 };
 
 export default postService;

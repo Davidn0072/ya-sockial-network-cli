@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePost } from '../hooks/usePost';
 import type { Post } from '../services/postService';
 import { PostCard } from './PostCard';
@@ -13,8 +13,19 @@ interface FeedContentProps {
 export function FeedContent({ searchText = '', searchAuthor = null, aiPosts = [], onEditPost }: FeedContentProps) {
   const { posts, isLoading, error, hasMore, loadMore } = usePost(searchText, searchAuthor);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
 
-  const displayPosts = aiPosts.length > 0 ? aiPosts : posts;
+  useEffect(() => {
+    if (aiPosts.length > 0) {
+      setDisplayedPosts(aiPosts);
+    } else {
+      setDisplayedPosts(posts);
+    }
+  }, [posts, aiPosts]);
+
+  const handleDeletePost = (postId: string) => {
+    setDisplayedPosts((prev) => prev.filter((p) => p._id !== postId));
+  };
 
   if (isLoading) {
     return (
@@ -34,7 +45,7 @@ export function FeedContent({ searchText = '', searchAuthor = null, aiPosts = []
     );
   }
 
-  if (displayPosts.length === 0) {
+  if (displayedPosts.length === 0) {
     return (
       <div className="max-w-2xl mx-auto py-6">
         <div className="bg-gray-50 border border-gray-200 text-gray-600 px-4 py-3 rounded-lg text-center">
@@ -63,8 +74,8 @@ export function FeedContent({ searchText = '', searchAuthor = null, aiPosts = []
 
   return (
     <div className="max-w-2xl mx-auto py-6 space-y-6">
-      {displayPosts.map((post) => (
-        <PostCard key={post._id} post={post} onEditPost={onEditPost} />
+      {displayedPosts.map((post: Post) => (
+        <PostCard key={post._id} post={post} onEditPost={onEditPost} onDeletePost={handleDeletePost} />
       ))}
 
       {!aiPosts.length && hasMore && (
