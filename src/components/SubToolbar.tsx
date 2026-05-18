@@ -46,7 +46,7 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     if (!nextCursor || !currentQuery.trim()) return;
     try {
       const result = await userService.searchUsers(currentQuery, nextCursor);
-      setUserSuggestions((prev) => [...prev, ...result.users]);
+      setUserSuggestions(result.users);
       setNextCursor(result.nextCursor);
     } catch (error) {
       console.error('Error loading more users:', error);
