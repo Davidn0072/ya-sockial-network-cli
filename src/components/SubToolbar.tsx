@@ -82,6 +82,7 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     setSearchAuthor(user.name);
     setSelectedUserId(user._id);
     setShowSuggestions(false);
+    onSearch?.(searchText.trim(), user._id);
   };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
