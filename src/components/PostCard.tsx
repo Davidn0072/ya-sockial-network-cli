@@ -125,11 +125,18 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Post Actions */}
       <PostActions
+        postId={post._id}
         likesStats={post.likesStats}
         commentsCount={post.commentsCount}
         filesCount={post.filesCount}
         onReactionsClick={() => setIsLikesPopupOpen(true)}
         onFilesClick={() => setShowFiles(!showFiles)}
+        onEditClick={() => {
+          console.log('Edit post:', post._id);
+        }}
+        onDeleteClick={() => {
+          console.log('Delete post:', post._id);
+        }}
       />
 
       {/* Files Grid */}

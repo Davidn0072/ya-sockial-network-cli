@@ -18,12 +18,15 @@ interface PostActionsProps {
 }
 
 export function PostActions({
+  postId: _postId,
   likesStats,
   commentsCount = 0,
   filesCount = 0,
   onReactionsClick,
   onCommentsClick,
   onFilesClick,
+  onEditClick,
+  onDeleteClick,
 }: PostActionsProps) {
   const totalReactions = likesStats?.total || 0;
 
@@ -58,6 +61,24 @@ export function PostActions({
           <span className="text-lg">📎</span>
           <span>{filesCount}</span>
           <span className="text-xs">Files</span>
+        </button>
+
+        {/* Edit */}
+        <button
+          onClick={onEditClick}
+          className="flex items-center gap-2 hover:text-yellow-600 transition-colors flex-1 justify-center py-2 hover:bg-gray-50 rounded"
+        >
+          <span className="text-lg">✏️</span>
+          <span className="text-xs">Edit</span>
+        </button>
+
+        {/* Delete */}
+        <button
+          onClick={onDeleteClick}
+          className="flex items-center gap-2 hover:text-red-600 transition-colors flex-1 justify-center py-2 hover:bg-gray-50 rounded"
+        >
+          <span className="text-lg">🗑️</span>
+          <span className="text-xs">Delete</span>
         </button>
       </div>
     </div>
