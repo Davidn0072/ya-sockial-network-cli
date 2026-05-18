@@ -23,7 +23,7 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     if (value.trim()) {
       try {
         const users = await userService.searchUsers(value);
-        setUserSuggestions(users);
+        setUserSuggestions(users.slice(0, 10));
         setShowSuggestions(true);
       } catch (error) {
         console.error('Error searching users:', error);
@@ -79,12 +79,12 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {showSuggestions && userSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
                   {userSuggestions.map((user) => (
                     <div
                       key={user._id}
                       onClick={() => handleUserSelect(user)}
-                      className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                      className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                     >
                       {user.name}
                     </div>
