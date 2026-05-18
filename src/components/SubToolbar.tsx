@@ -109,8 +109,16 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
 
   if (activeTab === 'feed') {
     return (
-      <div className="bg-gray-50 border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
+      <div className="bg-gray-50 border-b border-gray-200 shadow-sm pb-6 pt-6">
+        <div className="max-w-7xl mx-auto px-4 flex items-center gap-3">
+          <button className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition font-medium">
+            📋 All Posts
+          </button>
+          <button className="flex-1 bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition font-medium">
+            ✨ AI Recommendations
+          </button>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-4">
           <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition flex items-center gap-2">
             ✏️ Create Post
           </button>
