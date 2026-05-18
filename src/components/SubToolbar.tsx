@@ -42,10 +42,14 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     }
   };
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!nextCursor || !currentQuery.trim()) return;
     try {
+      console.log('📄 Loading more users with cursor:', nextCursor);
       const result = await userService.searchUsers(currentQuery, nextCursor);
+      console.log('✅ Received users:', result.users.length, 'nextCursor:', result.nextCursor);
       setUserSuggestions(result.users);
       setNextCursor(result.nextCursor);
     } catch (error) {
@@ -95,8 +99,11 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
                 onKeyDown={handleSearch}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {showSuggestions && userSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+              {showSuggestions && (
+                <div
+                  className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10"
+                  onMouseDown={(e) => e.preventDefault()}
+                >
                   {userSuggestions.map((user) => (
                     <div
                       key={user._id}
@@ -106,14 +113,21 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
                       {user.name}
                     </div>
                   ))}
-                  {nextCursor && (
-                    <button
-                      onClick={handleLoadMore}
-                      className="w-full px-4 py-2 text-blue-600 hover:bg-blue-50 font-medium text-sm"
-                    >
-                      NEXT →
-                    </button>
-                  )}
+                  <button
+                    onClick={nextCursor ? handleLoadMore : (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    disabled={!nextCursor}
+                    onMouseDown={(e) => e.preventDefault()}
+                    className={`w-full px-4 py-2 font-medium text-sm ${
+                      nextCursor
+                        ? 'text-blue-600 hover:bg-blue-50 cursor-pointer'
+                        : 'text-gray-400 cursor-not-allowed bg-gray-50'
+                    }`}
+                  >
+                    {nextCursor ? 'NEXT →' : 'No more users'}
+                  </button>
                 </div>
               )}
             </div>
