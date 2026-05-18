@@ -33,22 +33,24 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, editin
     if (!trimmedContent) {
       setStatus('Content is required');
       setStatusType('error');
+      setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
     setStatus('');
+    setStatusType('');
 
     try {
       if (editingPost) {
-        console.log('Updating post:', editingPost._id);
-        // TODO: Call updatePost service
+        await postService.updatePost(editingPost._id, trimmedContent);
       } else {
         await postService.createPost(trimmedContent);
       }
 
       setStatus(editingPost ? 'Post updated successfully!' : 'Post created successfully!');
       setStatusType('success');
+      setIsLoading(false);
 
       setTimeout(() => {
         setContent('');
@@ -57,12 +59,13 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, editin
         onPostCreated?.();
         onClose();
       }, 500);
+      return;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to save post';
-      setStatus(`Error: ${errorMsg}`);
+      setStatus(errorMsg);
       setStatusType('error');
-    } finally {
       setIsLoading(false);
+      return;
     }
   };
 
@@ -78,6 +81,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, editin
             className={styles.closeBtn}
             onClick={onClose}
             aria-label="Close"
+            disabled={isLoading}
           >
             ×
           </button>
@@ -100,7 +104,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, editin
               required
             />
             {status && (
-              <div className={`${styles.status} ${styles[statusType]}`}>
+              <div className={`${styles.status} ${statusType === 'success' ? styles.success : styles.error}`}>
                 {status}
               </div>
             )}

@@ -138,12 +138,60 @@ const postService = {
       body: JSON.stringify({ content }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Failed to create post (${response.status})`);
+      let errorMessage = 'Failed to create post';
+      if (typeof data === 'string') {
+        errorMessage = data;
+      } else if (data && data.message) {
+        errorMessage = data.message;
+      } else if (data && data.error) {
+        errorMessage = data.error;
+      }
+      throw new Error(errorMessage);
     }
 
-    return response.json();
+    if (data && data.success === false) {
+      const errorMessage = data.message || 'Failed to create post';
+      throw new Error(errorMessage);
+    }
+
+    return data;
+  },
+
+  async updatePost(postId: string, content: string): Promise<Post> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/posts/${postId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+      body: JSON.stringify({ content }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      let errorMessage = 'Failed to update post';
+      if (typeof data === 'string') {
+        errorMessage = data;
+      } else if (data && data.message) {
+        errorMessage = data.message;
+      } else if (data && data.error) {
+        errorMessage = data.error;
+      }
+      throw new Error(errorMessage);
+    }
+
+    if (data && data.success === false) {
+      const errorMessage = data.message || 'Failed to update post';
+      throw new Error(errorMessage);
+    }
+
+    return data;
   },
 };
 
