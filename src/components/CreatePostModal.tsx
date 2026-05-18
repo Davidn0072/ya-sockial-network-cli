@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import postService from '../services/postService';
 import styles from './CreatePostModal.module.css';
 
@@ -17,12 +17,18 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, editin
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [statusType, setStatusType] = useState<'success' | 'error' | ''>('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (isOpen && editingPost) {
-      setContent(editingPost.content);
-    } else if (isOpen) {
-      setContent('');
+    if (isOpen) {
+      setStatus('');
+      setStatusType('');
+      if (editingPost) {
+        setContent(editingPost.content);
+      } else {
+        setContent('');
+      }
+      setTimeout(() => textareaRef.current?.focus(), 0);
     }
   }, [isOpen, editingPost]);
 
@@ -93,6 +99,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, editin
               Content:
             </label>
             <textarea
+              ref={textareaRef}
               id="content"
               className={styles.textarea}
               placeholder="What's on your mind..."
