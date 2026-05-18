@@ -4,6 +4,7 @@ import { userService } from '../services/userService';
 interface SubToolbarProps {
   activeTab: 'feed' | 'profile';
   onSearch?: (searchText: string, userId: string | null) => void;
+  onAIRecommendations?: () => Promise<void>;
 }
 
 interface User {
@@ -11,7 +12,7 @@ interface User {
   name: string;
 }
 
-export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
+export function SubToolbar({ activeTab, onSearch, onAIRecommendations }: SubToolbarProps) {
   const [searchText, setSearchText] = useState('');
   const [searchAuthor, setSearchAuthor] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -113,8 +114,9 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     onSearch?.(searchText.trim(), selectedUserId);
   };
 
-  const handleAIRecommendations = () => {
+  const handleAIRecommendations = async () => {
     setIsAIMode(true);
+    await onAIRecommendations?.();
   };
 
   if (activeTab === 'feed') {

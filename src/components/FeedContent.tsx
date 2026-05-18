@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { usePost } from '../hooks/usePost';
+import type { Post } from '../services/postService';
 import { PostCard } from './PostCard';
 
 interface FeedContentProps {
   searchText?: string;
   searchAuthor?: string | null;
+  aiPosts?: Post[];
 }
 
-export function FeedContent({ searchText = '', searchAuthor = null }: FeedContentProps) {
+export function FeedContent({ searchText = '', searchAuthor = null, aiPosts = [] }: FeedContentProps) {
   const { posts, isLoading, error, hasMore, loadMore } = usePost(searchText, searchAuthor);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const displayPosts = aiPosts.length > 0 ? aiPosts : posts;
 
   if (isLoading) {
     return (
@@ -29,11 +33,11 @@ export function FeedContent({ searchText = '', searchAuthor = null }: FeedConten
     );
   }
 
-  if (posts.length === 0) {
+  if (displayPosts.length === 0) {
     return (
       <div className="max-w-2xl mx-auto py-6">
         <div className="bg-gray-50 border border-gray-200 text-gray-600 px-4 py-3 rounded-lg text-center">
-          No posts yet. Be the first to share something! ✨
+          {aiPosts.length === 0 ? 'No posts yet. Be the first to share something! ✨' : 'No AI recommendations available. Try updating your interests!'}
         </div>
       </div>
     );
@@ -58,11 +62,11 @@ export function FeedContent({ searchText = '', searchAuthor = null }: FeedConten
 
   return (
     <div className="max-w-2xl mx-auto py-6 space-y-6">
-      {posts.map((post) => (
+      {displayPosts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
 
-      {hasMore && (
+      {!aiPosts.length && hasMore && (
         <div className="text-center py-6">
           <button
             onClick={handleLoadMore}
@@ -74,7 +78,7 @@ export function FeedContent({ searchText = '', searchAuthor = null }: FeedConten
         </div>
       )}
 
-      {!hasMore && posts.length > 0 && (
+      {!aiPosts.length && !hasMore && posts.length > 0 && (
         <div className="text-center py-6 text-gray-500">
           No more posts to load
         </div>

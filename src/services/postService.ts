@@ -106,6 +106,25 @@ const postService = {
 
     return response.json();
   },
+
+  async getRecommendedPosts(): Promise<Post[]> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/posts/recommended`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch AI recommendations');
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : data.posts || [];
+  },
 };
 
 export default postService;
