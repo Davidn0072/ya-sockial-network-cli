@@ -19,6 +19,7 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [currentQuery, setCurrentQuery] = useState('');
+  const [prevCursors, setPrevCursors] = useState<string[]>([]);
 
   const handleSearchAuthorChange = async (value: string) => {
     setSearchAuthor(value);
@@ -48,12 +49,32 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
     if (!nextCursor || !currentQuery.trim()) return;
     try {
       console.log('📄 Loading more users with cursor:', nextCursor);
+      setPrevCursors([...prevCursors, nextCursor]);
       const result = await userService.searchUsers(currentQuery, nextCursor);
       console.log('✅ Received users:', result.users.length, 'nextCursor:', result.nextCursor);
       setUserSuggestions(result.users);
       setNextCursor(result.nextCursor);
     } catch (error) {
       console.error('Error loading more users:', error);
+    }
+  };
+
+  const handleLoadPrev = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (prevCursors.length === 0 || !currentQuery.trim()) return;
+    try {
+      const newPrevCursors = [...prevCursors];
+      const prevCursor = newPrevCursors.pop();
+      if (!prevCursor) return;
+      setPrevCursors(newPrevCursors);
+      console.log('⬅️ Loading previous users with cursor:', prevCursor);
+      const result = await userService.searchUsers(currentQuery, prevCursor);
+      console.log('✅ Received users:', result.users.length, 'nextCursor:', result.nextCursor);
+      setUserSuggestions(result.users);
+      setNextCursor(prevCursor);
+    } catch (error) {
+      console.error('Error loading previous users:', error);
     }
   };
 
@@ -113,21 +134,38 @@ export function SubToolbar({ activeTab, onSearch }: SubToolbarProps) {
                       {user.name}
                     </div>
                   ))}
-                  <button
-                    onClick={nextCursor ? handleLoadMore : (e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    disabled={!nextCursor}
-                    onMouseDown={(e) => e.preventDefault()}
-                    className={`w-full px-4 py-2 font-medium text-sm ${
-                      nextCursor
-                        ? 'text-blue-600 hover:bg-blue-50 cursor-pointer'
-                        : 'text-gray-400 cursor-not-allowed bg-gray-50'
-                    }`}
-                  >
-                    {nextCursor ? 'NEXT →' : 'No more users'}
-                  </button>
+                  <div className="flex gap-2 px-2 py-2">
+                    <button
+                      onClick={prevCursors.length > 0 ? handleLoadPrev : (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      disabled={prevCursors.length === 0}
+                      onMouseDown={(e) => e.preventDefault()}
+                      className={`flex-1 px-3 py-2 font-medium text-sm rounded ${
+                        prevCursors.length > 0
+                          ? 'text-blue-600 hover:bg-blue-50 cursor-pointer'
+                          : 'text-gray-400 cursor-not-allowed bg-gray-50'
+                      }`}
+                    >
+                      ← PREV
+                    </button>
+                    <button
+                      onClick={nextCursor ? handleLoadMore : (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      disabled={!nextCursor}
+                      onMouseDown={(e) => e.preventDefault()}
+                      className={`flex-1 px-3 py-2 font-medium text-sm rounded ${
+                        nextCursor
+                          ? 'text-blue-600 hover:bg-blue-50 cursor-pointer'
+                          : 'text-gray-400 cursor-not-allowed bg-gray-50'
+                      }`}
+                    >
+                      {nextCursor ? 'NEXT →' : 'No more'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
