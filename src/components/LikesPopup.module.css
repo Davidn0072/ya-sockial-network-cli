@@ -1,0 +1,139 @@
+.backdrop {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+}
+
+.popup {
+  position: relative;
+  width: 420px;
+  max-height: 80vh;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover {
+  opacity: 0.7;
+}
+
+.summary {
+  margin: 12px 0;
+}
+
+.summaryItem {
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 4px;
+  transition: background 0.15s;
+}
+
+.summaryItem:hover {
+  background: #f2f2f2;
+}
+
+.summaryItem.selected {
+  background: #dbeafe;
+  font-weight: bold;
+  border-left: 3px solid #2563eb;
+  padding-left: 8px;
+}
+
+.usersTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 6px;
+  padding: 4px 6px;
+  background: #eff6ff;
+  border-radius: 4px;
+}
+
+.usersList {
+  margin-top: 10px;
+  height: 240px;
+  min-height: 240px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+
+.userItem {
+  padding: 4px 0;
+  color: #555;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
+.loading {
+  text-align: center;
+  padding: 10px;
+  color: #999;
+}
+
+.pagination {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: space-between;
+}
+
+.paginationBtn {
+  flex: 1;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.paginationBtn:hover:not(:disabled) {
+  background: #e5e5e5;
+}
+
+.paginationBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

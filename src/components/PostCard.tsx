@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { Post } from '../services/postService';
 import postService from '../services/postService';
 import { PostActions } from './PostActions';
+import { FilesGrid } from './FilesGrid';
+import LikesPopup from './LikesPopup';
 
 interface PostCardProps {
   post: Post;
@@ -10,6 +12,8 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const [content, setContent] = useState(post.content);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showFiles, setShowFiles] = useState(false);
+  const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
 
   const handleShowMore = async () => {
     try {
@@ -124,6 +128,21 @@ export function PostCard({ post }: PostCardProps) {
         likesStats={post.likesStats}
         commentsCount={post.commentsCount}
         filesCount={post.filesCount}
+        onReactionsClick={() => setIsLikesPopupOpen(true)}
+        onFilesClick={() => setShowFiles(!showFiles)}
+      />
+
+      {/* Files Grid */}
+      {showFiles && post.filesCount && post.filesCount > 0 && (
+        <FilesGrid postId={post._id} />
+      )}
+
+      {/* Likes Popup */}
+      <LikesPopup
+        isOpen={isLikesPopupOpen}
+        targetId={post._id}
+        targetType="post"
+        onClose={() => setIsLikesPopupOpen(false)}
       />
     </div>
   );
