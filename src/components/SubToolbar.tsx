@@ -12,6 +12,7 @@ interface SubToolbarProps {
   onSearch: (searchText: string, userId: string | null) => void;
   onAllPosts: () => void;
   onAIRecommendations: () => Promise<void>;
+  onCreatePost?: () => void;
 }
 
 interface User {
@@ -30,6 +31,7 @@ export function SubToolbar({
   onSearch,
   onAllPosts,
   onAIRecommendations,
+  onCreatePost,
 }: SubToolbarProps) {
   const [searchAuthor, setSearchAuthor] = useState('');
   const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
@@ -160,7 +162,10 @@ export function SubToolbar({
           </button>
         </div>
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-4">
-          <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition flex items-center gap-2">
+          <button
+            onClick={onCreatePost}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition flex items-center gap-2"
+          >
             ✏️ Create Post
           </button>
 

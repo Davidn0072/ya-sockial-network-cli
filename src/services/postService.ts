@@ -125,6 +125,26 @@ const postService = {
     const data = await response.json();
     return Array.isArray(data) ? data : data.posts || [];
   },
+
+  async createPost(content: string): Promise<Post> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/posts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+      body: JSON.stringify({ content }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to create post (${response.status})`);
+    }
+
+    return response.json();
+  },
 };
 
 export default postService;

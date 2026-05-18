@@ -1,5 +1,6 @@
 
 interface PostActionsProps {
+  postId: string;
   likesStats?: {
     total: number;
     like: number;
@@ -12,6 +13,8 @@ interface PostActionsProps {
   onReactionsClick?: () => void;
   onCommentsClick?: () => void;
   onFilesClick?: () => void;
+  onEditClick?: () => void;
+  onDeleteClick?: () => void;
 }
 
 export function PostActions({

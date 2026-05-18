@@ -24,7 +24,7 @@ interface LikesPopupProps {
 export default function LikesPopup({ isOpen, targetId, targetType = 'post', onClose }: LikesPopupProps) {
   const [stats, setStats] = useState<LikesStats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedType, setSelectedType] = useState('all');
+  const [selectedType, setSelectedType] = useState('like');
   const [cursor, setCursor] = useState<string | null>(null);
   const [prevCursors, setPrevCursors] = useState<(string | null)[]>([]);
   const [hasMore, setHasMore] = useState(false);

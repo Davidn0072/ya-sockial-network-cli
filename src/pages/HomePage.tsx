@@ -3,6 +3,7 @@ import { TopNavbar } from '../components/TopNavbar';
 import { SubToolbar } from '../components/SubToolbar';
 import { FeedContent } from '../components/FeedContent';
 import { ProfileContent } from '../components/ProfileContent';
+import CreatePostModal from '../components/CreatePostModal';
 import type { Post } from '../services/postService';
 import postService from '../services/postService';
 
@@ -14,6 +15,8 @@ export function HomePage() {
   const [isAIMode, setIsAIMode] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState<Post[]>([]);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [feedRefreshKey, setFeedRefreshKey] = useState(0);
 
   const handleTabChange = (tab: 'feed' | 'profile') => {
     setActiveTab(tab);
@@ -49,6 +52,12 @@ export function HomePage() {
     setAiRecommendations([]);
   };
 
+  const handlePostCreated = () => {
+    setFeedRefreshKey((prev) => prev + 1);
+    setIsAIMode(false);
+    setAiRecommendations([]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <TopNavbar activeTab={activeTab} onTabChange={handleTabChange} />
@@ -64,11 +73,13 @@ export function HomePage() {
         onSearch={handleSearch}
         onAllPosts={handleAllPosts}
         onAIRecommendations={handleAIRecommendations}
+        onCreatePost={() => setIsCreatePostOpen(true)}
       />
 
       <main className="flex-1">
         {activeTab === 'feed' && (
           <FeedContent
+            key={feedRefreshKey}
             searchText={searchText}
             searchAuthor={selectedUserId}
             aiPosts={aiRecommendations}
@@ -76,6 +87,12 @@ export function HomePage() {
         )}
         {activeTab === 'profile' && <ProfileContent />}
       </main>
+
+      <CreatePostModal
+        isOpen={isCreatePostOpen}
+        onClose={() => setIsCreatePostOpen(false)}
+        onPostCreated={handlePostCreated}
+      />
     </div>
   );
 }
