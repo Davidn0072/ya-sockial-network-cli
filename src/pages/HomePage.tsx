@@ -40,7 +40,11 @@ export function HomePage() {
     setIsAIMode(true);
     try {
       const posts = await postService.getRecommendedPosts();
-      setAiRecommendations(posts);
+      const postsWithAIFlag = posts.map((post) => ({
+        ...post,
+        _aiRecommended: true,
+      }));
+      setAiRecommendations(postsWithAIFlag);
     } catch (error) {
       console.error('Error loading AI recommendations:', error);
       setAiRecommendations([]);
@@ -72,6 +76,7 @@ export function HomePage() {
         selectedUserId={selectedUserId}
         setSelectedUserId={setSelectedUserId}
         isAIMode={isAIMode}
+        isLoadingAI={isLoadingAI}
         onSearch={handleSearch}
         onAllPosts={handleAllPosts}
         onAIRecommendations={handleAIRecommendations}

@@ -65,14 +65,21 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       {/* Post Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className={`w-12 h-12 bg-gradient-to-br ${colors[colorIndex]} rounded-full flex items-center justify-center text-white font-bold`}>
-          {getInitial(userName)}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className={`w-12 h-12 bg-gradient-to-br ${colors[colorIndex]} rounded-full flex items-center justify-center text-white font-bold`}>
+            {getInitial(userName)}
+          </div>
+          <div>
+            <div className="font-bold">{userName}</div>
+            <div className="text-sm text-gray-500">{formatDate(post.createdAt)}</div>
+          </div>
         </div>
-        <div>
-          <div className="font-bold">{userName}</div>
-          <div className="text-sm text-gray-500">{formatDate(post.createdAt)}</div>
-        </div>
+        {(post as any)._aiRecommended && (
+          <div className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
+            ✨ AI Pick
+          </div>
+        )}
       </div>
 
       {/* Post Content */}

@@ -8,6 +8,7 @@ interface SubToolbarProps {
   selectedUserId: string | null;
   setSelectedUserId: (value: string | null) => void;
   isAIMode: boolean;
+  isLoadingAI?: boolean;
   onSearch: (searchText: string, userId: string | null) => void;
   onAllPosts: () => void;
   onAIRecommendations: () => Promise<void>;
@@ -25,6 +26,7 @@ export function SubToolbar({
   selectedUserId,
   setSelectedUserId,
   isAIMode,
+  isLoadingAI = false,
   onSearch,
   onAllPosts,
   onAIRecommendations,
@@ -147,13 +149,14 @@ export function SubToolbar({
           </button>
           <button
             onClick={handleAIRecommendations}
+            disabled={isLoadingAI}
             className={`flex-1 py-2 rounded-lg transition font-medium ${
               isAIMode
                 ? 'bg-purple-600 text-white'
                 : 'bg-purple-500 text-white hover:bg-purple-600'
-            }`}
+            } ${isLoadingAI ? 'opacity-75 cursor-wait' : ''}`}
           >
-            ✨ AI Recommendations
+            {isLoadingAI ? '⏳ Claude is thinking...' : '✨ AI Recommendations'}
           </button>
         </div>
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-4">
