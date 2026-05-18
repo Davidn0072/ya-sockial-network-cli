@@ -29,10 +29,16 @@ const commentService = {
   ): Promise<CommentsResponse> {
     const token = authService.getToken();
 
-    let url = `${API_URL}/comments?postId=${postId}&parentCommentId=null&limit=${limit}`;
+    const params = new URLSearchParams({
+      postId,
+      limit: String(limit),
+    });
+
     if (cursor) {
-      url += `&cursor=${cursor}`;
+      params.append('cursor', cursor);
     }
+
+    const url = `${API_URL}/comments?${params.toString()}`;
 
     const response = await fetch(url, {
       method: 'GET',
