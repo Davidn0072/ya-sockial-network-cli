@@ -7,9 +7,10 @@ import LikesPopup from './LikesPopup';
 
 interface PostCardProps {
   post: Post;
+  onEditPost?: (post: Post) => void;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, onEditPost }: PostCardProps) {
   const [content, setContent] = useState(post.content);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
@@ -131,9 +132,7 @@ export function PostCard({ post }: PostCardProps) {
         filesCount={post.filesCount}
         onReactionsClick={() => setIsLikesPopupOpen(true)}
         onFilesClick={() => setShowFiles(!showFiles)}
-        onEditClick={() => {
-          console.log('Edit post:', post._id);
-        }}
+        onEditClick={() => onEditPost?.(post)}
         onDeleteClick={() => {
           console.log('Delete post:', post._id);
         }}

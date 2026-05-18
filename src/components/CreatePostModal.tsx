@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import postService from '../services/postService';
 import styles from './CreatePostModal.module.css';
 
@@ -6,13 +6,25 @@ interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPostCreated?: () => void;
+  editingPost?: {
+    _id: string;
+    content: string;
+  } | null;
 }
 
-export default function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostModalProps) {
+export default function CreatePostModal({ isOpen, onClose, onPostCreated, editingPost }: CreatePostModalProps) {
   const [content, setContent] = useState('');
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [statusType, setStatusType] = useState<'success' | 'error' | ''>('');
+
+  useEffect(() => {
+    if (isOpen && editingPost) {
+      setContent(editingPost.content);
+    } else if (isOpen) {
+      setContent('');
+    }
+  }, [isOpen, editingPost]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +40,14 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
     setStatus('');
 
     try {
-      await postService.createPost(trimmedContent);
-      setStatus('Post created successfully!');
+      if (editingPost) {
+        console.log('Updating post:', editingPost._id);
+        // TODO: Call updatePost service
+      } else {
+        await postService.createPost(trimmedContent);
+      }
+
+      setStatus(editingPost ? 'Post updated successfully!' : 'Post created successfully!');
       setStatusType('success');
 
       setTimeout(() => {
@@ -40,7 +58,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
         onClose();
       }, 500);
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Failed to create post';
+      const errorMsg = error instanceof Error ? error.message : 'Failed to save post';
       setStatus(`Error: ${errorMsg}`);
       setStatusType('error');
     } finally {
@@ -54,7 +72,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
     <div className={styles.backdrop} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Add Post</h2>
+          <h2 className={styles.title}>{editingPost ? 'Edit Post' : 'Add Post'}</h2>
           <button
             type="button"
             className={styles.closeBtn}
@@ -102,7 +120,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
               className={styles.submitBtn}
               disabled={isLoading}
             >
-              {isLoading ? 'Posting...' : 'Post'}
+              {isLoading ? (editingPost ? 'Saving...' : 'Posting...') : (editingPost ? 'Save' : 'Post')}
             </button>
           </div>
         </form>

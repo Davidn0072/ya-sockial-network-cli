@@ -17,6 +17,7 @@ export function HomePage() {
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [feedRefreshKey, setFeedRefreshKey] = useState(0);
+  const [editingPost, setEditingPost] = useState<{ _id: string; content: string } | null>(null);
 
   const handleTabChange = (tab: 'feed' | 'profile') => {
     setActiveTab(tab);
@@ -83,6 +84,10 @@ export function HomePage() {
             searchText={searchText}
             searchAuthor={selectedUserId}
             aiPosts={aiRecommendations}
+            onEditPost={(post) => {
+              setEditingPost({ _id: post._id, content: post.content });
+              setIsCreatePostOpen(true);
+            }}
           />
         )}
         {activeTab === 'profile' && <ProfileContent />}
@@ -90,8 +95,12 @@ export function HomePage() {
 
       <CreatePostModal
         isOpen={isCreatePostOpen}
-        onClose={() => setIsCreatePostOpen(false)}
+        onClose={() => {
+          setIsCreatePostOpen(false);
+          setEditingPost(null);
+        }}
         onPostCreated={handlePostCreated}
+        editingPost={editingPost}
       />
     </div>
   );

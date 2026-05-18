@@ -7,9 +7,10 @@ interface FeedContentProps {
   searchText?: string;
   searchAuthor?: string | null;
   aiPosts?: Post[];
+  onEditPost?: (post: Post) => void;
 }
 
-export function FeedContent({ searchText = '', searchAuthor = null, aiPosts = [] }: FeedContentProps) {
+export function FeedContent({ searchText = '', searchAuthor = null, aiPosts = [], onEditPost }: FeedContentProps) {
   const { posts, isLoading, error, hasMore, loadMore } = usePost(searchText, searchAuthor);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -63,7 +64,7 @@ export function FeedContent({ searchText = '', searchAuthor = null, aiPosts = []
   return (
     <div className="max-w-2xl mx-auto py-6 space-y-6">
       {displayPosts.map((post) => (
-        <PostCard key={post._id} post={post} />
+        <PostCard key={post._id} post={post} onEditPost={onEditPost} />
       ))}
 
       {!aiPosts.length && hasMore && (
