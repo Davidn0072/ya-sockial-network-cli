@@ -1,10 +1,31 @@
+import { useState, useEffect } from 'react';
 import type { Comment } from '../services/commentService';
+import { CommentActions } from './CommentActions';
+import LikesPopup from './LikesPopup';
+import { fetchLikesStats } from '../services/likesService';
 
 interface CommentItemProps {
   comment: Comment;
 }
 
 export function CommentItem({ comment }: CommentItemProps) {
+  const [likesStats, setLikesStats] = useState(comment.likesCount ? { total: comment.likesCount } : { total: 0 });
+  const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
+
+  useEffect(() => {
+    loadLikesStats();
+  }, [comment._id]);
+
+  const loadLikesStats = async () => {
+    try {
+      const stats = await fetchLikesStats(comment._id, 'comment');
+      if (stats) {
+        setLikesStats(stats);
+      }
+    } catch (err) {
+      console.error('Error loading likes stats:', err);
+    }
+  };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -61,7 +82,22 @@ export function CommentItem({ comment }: CommentItemProps) {
           <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
         </div>
         <p className="text-sm text-gray-700 break-words">{comment.content}</p>
+
+        {/* Comment Actions */}
+        <CommentActions
+          commentId={comment._id}
+          likesStats={likesStats}
+          onReactionsClick={() => setIsLikesPopupOpen(true)}
+        />
       </div>
+
+      {/* Likes Popup */}
+      <LikesPopup
+        isOpen={isLikesPopupOpen}
+        targetId={comment._id}
+        targetType="comment"
+        onClose={() => setIsLikesPopupOpen(false)}
+      />
     </div>
   );
 }
