@@ -3,8 +3,14 @@ import { userService } from '../services/userService';
 
 interface SubToolbarProps {
   activeTab: 'feed' | 'profile';
-  onSearch?: (searchText: string, userId: string | null) => void;
-  onAIRecommendations?: () => Promise<void>;
+  searchText: string;
+  setSearchText: (value: string) => void;
+  selectedUserId: string | null;
+  setSelectedUserId: (value: string | null) => void;
+  isAIMode: boolean;
+  onSearch: (searchText: string, userId: string | null) => void;
+  onAllPosts: () => void;
+  onAIRecommendations: () => Promise<void>;
 }
 
 interface User {
@@ -12,16 +18,23 @@ interface User {
   name: string;
 }
 
-export function SubToolbar({ activeTab, onSearch, onAIRecommendations }: SubToolbarProps) {
-  const [searchText, setSearchText] = useState('');
+export function SubToolbar({
+  activeTab,
+  searchText,
+  setSearchText,
+  selectedUserId,
+  setSelectedUserId,
+  isAIMode,
+  onSearch,
+  onAllPosts,
+  onAIRecommendations,
+}: SubToolbarProps) {
   const [searchAuthor, setSearchAuthor] = useState('');
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [currentQuery, setCurrentQuery] = useState('');
   const [prevCursors, setPrevCursors] = useState<string[]>([]);
-  const [isAIMode, setIsAIMode] = useState(false);
 
   const handleSearchAuthorChange = async (value: string) => {
     setSearchAuthor(value);
@@ -110,13 +123,12 @@ export function SubToolbar({ activeTab, onSearch, onAIRecommendations }: SubTool
   };
 
   const handleAllPosts = () => {
-    setIsAIMode(false);
-    onSearch?.(searchText.trim(), selectedUserId);
+    onAllPosts();
+    onSearch(searchText.trim(), selectedUserId);
   };
 
   const handleAIRecommendations = async () => {
-    setIsAIMode(true);
-    await onAIRecommendations?.();
+    await onAIRecommendations();
   };
 
   if (activeTab === 'feed') {

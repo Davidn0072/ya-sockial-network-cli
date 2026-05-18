@@ -12,6 +12,8 @@ export function HomePage() {
   const [activeTab, setActiveTab] = useState<'feed' | 'profile'>('feed');
   const [searchText, setSearchText] = useState('');
   const [searchAuthor, setSearchAuthor] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isAIMode, setIsAIMode] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState<Post[]>([]);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const { logout } = useAuth();
@@ -26,24 +28,30 @@ export function HomePage() {
     setActiveTab(tab);
   };
 
-  const handleSearch = (text: string, author: string | null) => {
+  const handleSearch = (text: string, userId: string | null) => {
     setSearchText(text);
-    setSearchAuthor(author);
+    setSelectedUserId(userId);
+    setIsAIMode(false);
+    setAiRecommendations([]);
   };
 
   const handleAIRecommendations = async () => {
     setIsLoadingAI(true);
+    setIsAIMode(true);
     try {
       const posts = await postService.getRecommendedPosts();
       setAiRecommendations(posts);
-      setSearchText('');
-      setSearchAuthor(null);
     } catch (error) {
       console.error('Error loading AI recommendations:', error);
       setAiRecommendations([]);
     } finally {
       setIsLoadingAI(false);
     }
+  };
+
+  const handleAllPosts = () => {
+    setIsAIMode(false);
+    setAiRecommendations([]);
   };
 
   return (
@@ -57,13 +65,23 @@ export function HomePage() {
         Logout
       </button>
 
-      <SubToolbar activeTab={activeTab} onSearch={handleSearch} onAIRecommendations={handleAIRecommendations} />
+      <SubToolbar
+        activeTab={activeTab}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        selectedUserId={selectedUserId}
+        setSelectedUserId={setSelectedUserId}
+        isAIMode={isAIMode}
+        onSearch={handleSearch}
+        onAllPosts={handleAllPosts}
+        onAIRecommendations={handleAIRecommendations}
+      />
 
       <main className="flex-1">
         {activeTab === 'feed' && (
           <FeedContent
             searchText={searchText}
-            searchAuthor={searchAuthor}
+            searchAuthor={selectedUserId}
             aiPosts={aiRecommendations}
           />
         )}
