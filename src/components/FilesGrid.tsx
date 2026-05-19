@@ -4,9 +4,10 @@ import { FileItem as FileItemComponent } from './FileItem';
 
 interface FilesGridProps {
   postId: string;
+  onFileDeleted?: (fileId: string) => void;
 }
 
-export function FilesGrid({ postId }: FilesGridProps) {
+export function FilesGrid({ postId, onFileDeleted }: FilesGridProps) {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -38,6 +39,7 @@ export function FilesGrid({ postId }: FilesGridProps) {
 
   const handleFileDeleted = (fileId: string) => {
     setFiles(files.filter(f => f._id !== fileId));
+    onFileDeleted?.(fileId);
   };
 
   const handleFileRenamed = (updatedFile: FileItem) => {

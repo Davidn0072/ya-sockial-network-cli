@@ -49,7 +49,9 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
       setIsRenaming(false);
       onFileRenamed?.(updatedFile);
     } catch (err) {
-      setRenameError(err instanceof Error ? err.message : 'Failed to rename file');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to rename file';
+      setRenameError(errorMessage);
+      alert(`Error: ${errorMessage}`);
     } finally {
       setIsUpdating(false);
     }
@@ -67,7 +69,9 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
       onFileDeleted?.(file._id);
       setShowDeleteConfirm(false);
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete file';
       console.error('Failed to delete file:', err);
+      alert(`Error: ${errorMessage}`);
     }
   };
 
