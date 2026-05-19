@@ -110,6 +110,25 @@ const commentService = {
     return response.json();
   },
 
+  async addReply(postId: string, parentCommentId: string, content: string): Promise<Comment> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/comments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+      body: JSON.stringify({ postId, parentCommentId, content }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add reply');
+    }
+
+    return response.json();
+  },
+
   async updateComment(commentId: string, content: string): Promise<Comment> {
     const token = authService.getToken();
 

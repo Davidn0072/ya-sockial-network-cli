@@ -14,6 +14,7 @@ interface CommentActionsProps {
   onViewReactions?: () => void;
   onToggleReplies?: () => void;
   repliesIsVisible?: boolean;
+  onReply?: () => void;
 }
 
 export function CommentActions({
@@ -23,6 +24,7 @@ export function CommentActions({
   onViewReactions,
   onToggleReplies,
   repliesIsVisible,
+  onReply,
 }: CommentActionsProps) {
   const totalReactions = likesStats?.total || 0;
 
@@ -43,6 +45,7 @@ export function CommentActions({
 
       {/* Reply Button */}
       <button
+        onClick={onReply}
         className="text-xs text-gray-500 hover:text-gray-700 hover:font-semibold transition-colors"
       >
         Reply

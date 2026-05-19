@@ -64,6 +64,13 @@ export function useNestedComments(postId: string, parentCommentId: string) {
     }
   }, [state.nextCursor, fetchReplies]);
 
+  const addReplyToList = useCallback((newReply: Comment) => {
+    setState((prev) => ({
+      ...prev,
+      replies: [newReply, ...prev.replies],
+    }));
+  }, []);
+
   return {
     replies: state.replies,
     isLoading: state.isLoading,
@@ -72,5 +79,6 @@ export function useNestedComments(postId: string, parentCommentId: string) {
     hasMore: state.nextCursor !== null,
     toggleReplies,
     loadMore,
+    addReplyToList,
   };
 }

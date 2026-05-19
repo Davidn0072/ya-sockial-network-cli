@@ -3,6 +3,7 @@ import type { Comment } from '../services/commentService';
 import { CommentActions } from './CommentActions';
 import LikesPopup from './LikesPopup';
 import { NestedRepliesList } from './NestedRepliesList';
+import { ReplyInput } from './ReplyInput';
 import { useNestedComments } from '../hooks/useNestedComments';
 import { fetchLikesStats } from '../services/likesService';
 
@@ -14,6 +15,7 @@ export function CommentItem({ comment }: CommentItemProps) {
   const nestedComments = useNestedComments(comment.postId, comment._id);
   const [likesStats, setLikesStats] = useState(comment.likesCount ? { total: comment.likesCount } : { total: 0 });
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
+  const [isReplyInputOpen, setIsReplyInputOpen] = useState(false);
 
   useEffect(() => {
     loadLikesStats();
@@ -57,7 +59,7 @@ export function CommentItem({ comment }: CommentItemProps) {
     'from-orange-400 to-orange-600',
   ];
 
-  const userIdString = comment.userId._id;
+  const userIdString = comment.userId?._id || '';
 
   const getColorIndex = (id: string) => {
     let hash = 0;
@@ -68,8 +70,8 @@ export function CommentItem({ comment }: CommentItemProps) {
     return Math.abs(hash) % colors.length;
   };
 
-  const colorIndex = getColorIndex(userIdString);
-  const userName = comment.userId.name;
+  const colorIndex = userIdString ? getColorIndex(userIdString) : 0;
+  const userName = comment.userId?.name || 'Unknown User';
 
   return (
     <div className="flex gap-3 py-3 border-b border-gray-100 last:border-b-0">
@@ -94,7 +96,24 @@ export function CommentItem({ comment }: CommentItemProps) {
           onViewReactions={() => setIsLikesPopupOpen(true)}
           onToggleReplies={nestedComments.toggleReplies}
           repliesIsVisible={nestedComments.isVisible}
+          onReply={() => setIsReplyInputOpen(!isReplyInputOpen)}
         />
+
+        {/* Reply Input */}
+        {isReplyInputOpen && (
+          <ReplyInput
+            postId={comment.postId}
+            parentCommentId={comment._id}
+            onReplySuccess={(newReply) => {
+              setIsReplyInputOpen(false);
+              nestedComments.addReplyToList(newReply);
+              if (!nestedComments.isVisible) {
+                nestedComments.toggleReplies();
+              }
+            }}
+            onCancel={() => setIsReplyInputOpen(false)}
+          />
+        )}
 
         {/* Nested Replies */}
         {nestedComments.isVisible && (
