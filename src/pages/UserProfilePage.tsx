@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { userService } from '../services/userService';
+import postService from '../services/postService';
 import { TopNavbar } from '../components/TopNavbar';
+import type { Post } from '../services/postService';
 
 interface UserProfile {
   _id: string;
@@ -15,12 +17,15 @@ export function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (userId) {
       loadUserProfile();
+      loadUserPosts();
     }
   }, [userId]);
 
@@ -36,6 +41,34 @@ export function UserProfilePage() {
       setError(err instanceof Error ? err.message : 'Failed to load user profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserPosts = async () => {
+    if (!userId) return;
+
+    setPostsLoading(true);
+    try {
+      const userPosts = await postService.getPostsByUser(userId);
+      setPosts(userPosts.slice(0, 4));
+    } catch (err) {
+      console.error('Failed to load user posts:', err);
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
+  const handleLoadMorePosts = async () => {
+    if (!userId) return;
+
+    setPostsLoading(true);
+    try {
+      const userPosts = await postService.getPostsByUser(userId);
+      setPosts(userPosts.slice(0, posts.length + 4));
+    } catch (err) {
+      console.error('Failed to load more posts:', err);
+    } finally {
+      setPostsLoading(false);
     }
   };
 
@@ -86,6 +119,16 @@ export function UserProfilePage() {
           </div>
         ) : profile ? (
           <>
+            {/* Back Button - Top Left */}
+            <div className="mb-6">
+              <button
+                onClick={() => navigate('/')}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                ← Back to Feed
+              </button>
+            </div>
+
             {/* Profile Header Card */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
               {/* Cover Background with Profile Info */}
@@ -122,39 +165,87 @@ export function UserProfilePage() {
                       </p>
                     </div>
                   )}
+
+                  {/* Domains of Interest Section */}
+                  <div>
+                    <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                      Domains of Interest
+                    </label>
+                    {profile.domainofinterest && profile.domainofinterest.length > 0 ? (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {profile.domainofinterest.map((domain, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"
+                          >
+                            {domain}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 mt-2">No domains of interest specified</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Interests Section */}
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Domains of Interest</h2>
-
-              {profile.domainofinterest && profile.domainofinterest.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
-                  {profile.domainofinterest.map((domain, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-blue-100 text-blue-800 text-sm font-medium px-4 py-2 rounded-full"
+            {/* User Posts Section */}
+            {posts.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">User Posts</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  {posts.map((post) => (
+                    <div
+                      key={post._id}
+                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100 cursor-pointer"
                     >
-                      {domain}
-                    </span>
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-500">
+                          {new Date(post.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                      <p className="text-gray-800 text-sm line-clamp-3 mb-4">
+                        {post.content}
+                      </p>
+                      {post.images && post.images.length > 0 && (
+                        <div className="mb-4 h-40 bg-gray-200 rounded-lg overflow-hidden">
+                          <img
+                            src={`${window.location.protocol}//${window.location.hostname}:3000/uploads/${post.images[0]}`}
+                            alt="post"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex gap-4 text-sm text-gray-600">
+                        {post.likesStats && (
+                          <span>👍 {post.likesStats.total || 0}</span>
+                        )}
+                        {post.commentsCount !== undefined && (
+                          <span>💬 {post.commentsCount}</span>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-gray-500">No domains of interest specified yet</p>
-              )}
-            </div>
 
-            {/* Back Button */}
-            <div className="mt-8">
-              <button
-                onClick={() => navigate('/')}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                Back to Feed
-              </button>
-            </div>
+                {posts.length > 0 && (
+                  <div className="text-center">
+                    <button
+                      onClick={handleLoadMorePosts}
+                      disabled={postsLoading}
+                      className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
+                    >
+                      {postsLoading ? 'Loading...' : 'Load More Posts'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         ) : null}
       </div>
