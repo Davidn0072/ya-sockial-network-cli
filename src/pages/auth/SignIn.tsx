@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { DebugLoginPanel } from '../../components/DebugLoginPanel';
 
 interface SignInProps {
   onSwitchToSignUp: () => void;
@@ -21,6 +22,22 @@ export function SignIn({ onSwitchToSignUp }: SignInProps) {
 
     try {
       await login(email, password);
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleQuickLogin = async (debugEmail: string, debugPassword: string) => {
+    setError('');
+    setIsLoading(true);
+    setEmail(debugEmail);
+    setPassword(debugPassword);
+
+    try {
+      await login(debugEmail, debugPassword);
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -78,6 +95,8 @@ export function SignIn({ onSwitchToSignUp }: SignInProps) {
           Sign Up
         </button>
       </div>
+
+      <DebugLoginPanel onQuickLogin={handleQuickLogin} isLoading={isLoading} />
     </div>
   );
 }

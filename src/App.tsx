@@ -6,6 +6,7 @@ import { UserProfilePage } from './pages/UserProfilePage';
 import { EditUserProfilePage } from './pages/EditUserProfilePage';
 import { ViewProfilePage } from './pages/ViewProfilePage';
 import { FriendsPage } from './pages/FriendsPage';
+import { ChatPage } from './pages/ChatPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -44,6 +45,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <FriendsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <ChatPage />
                 </ProtectedRoute>
               }
             />

@@ -58,21 +58,21 @@ export const authService = {
   },
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
   },
 
   getToken(): string | null {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     return token;
   },
 
   setToken(token: string) {
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
   },
 
   getUser() {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     if (!user) return null;
 
     try {
@@ -84,9 +84,9 @@ export const authService = {
 
   setUser(user: any) {
     if (typeof user === 'string') {
-      localStorage.setItem('user', user);
+      sessionStorage.setItem('user', user);
     } else if (user?.name) {
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('user', JSON.stringify(user));
     }
   },
 };

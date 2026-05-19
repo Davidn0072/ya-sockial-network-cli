@@ -19,6 +19,10 @@ export function TopNavbar({ activeTab, onTabChange }: TopNavbarProps) {
     navigate('/profile/view');
   };
 
+  const handleChatClick = () => {
+    navigate('/chat');
+  };
+
   return (
     <nav className="bg-blue-600 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -42,6 +46,13 @@ export function TopNavbar({ activeTab, onTabChange }: TopNavbarProps) {
             }`}
           >
             🏠 Feed
+          </button>
+
+          <button
+            onClick={handleChatClick}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+          >
+            💬 Chat
           </button>
 
           <button
