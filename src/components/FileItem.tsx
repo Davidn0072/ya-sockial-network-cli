@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import fileService, { type FileItem as FileItemType } from '../services/fileService';
 import { useAuth } from '../hooks/useAuth';
+import styles from './FileItem.module.css';
 
 interface FileItemProps {
   file: FileItemType;
@@ -133,7 +134,7 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
               {/* Rename Button */}
               <button
                 onClick={handleRenameClick}
-                className="p-1.5 bg-slate-700 text-white rounded hover:bg-slate-800 transition-colors shadow-md"
+                className={`${styles.actionButton} ${styles.actionButtonAmber}`}
                 title="Rename file"
               >
                 <span className="text-sm">✏️</span>
@@ -142,7 +143,7 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
               {/* Delete Button */}
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="p-1.5 bg-rose-600 text-white rounded hover:bg-rose-700 transition-colors shadow-md"
+                className={`${styles.actionButton} ${styles.actionButtonRed}`}
                 title="Delete file"
               >
                 <span className="text-sm">🗑️</span>
