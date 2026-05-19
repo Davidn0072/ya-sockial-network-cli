@@ -47,6 +47,41 @@ const fileService = {
       nextCursor: data.nextCursor || null,
     };
   },
+
+  async deleteFile(fileId: string): Promise<void> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/files/db/${fileId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete file');
+    }
+  },
+
+  async renameFile(fileId: string, newFileName: string): Promise<FileItem> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/files/db/${fileId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+      body: JSON.stringify({ originalFileName: newFileName }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to rename file');
+    }
+
+    return response.json();
+  },
 };
 
 export default fileService;

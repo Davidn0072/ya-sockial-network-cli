@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import fileService, { type FileItem } from '../services/fileService';
+import { FileItem as FileItemComponent } from './FileItem';
 
 interface FilesGridProps {
   postId: string;
@@ -35,13 +36,12 @@ export function FilesGrid({ postId }: FilesGridProps) {
     loadFiles();
   }, [postId]);
 
-  const isImageFile = (filename: string): boolean => {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
-    return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+  const handleFileDeleted = (fileId: string) => {
+    setFiles(files.filter(f => f._id !== fileId));
   };
 
-  const getFileUrl = (file: FileItem): string => {
-    return `http://localhost:3000/uploads/${file.postId}/${file.storageFileName}`;
+  const handleFileRenamed = (updatedFile: FileItem) => {
+    setFiles(files.map(f => f._id === updatedFile._id ? updatedFile : f));
   };
 
   if (isLoading && files.length === 0) {
@@ -59,40 +59,14 @@ export function FilesGrid({ postId }: FilesGridProps) {
   return (
     <div className="mt-4">
       <div className="grid grid-cols-4 gap-4">
-        {files.map(file => {
-          const fileUrl = getFileUrl(file);
-          const isImage = isImageFile(file.originalFileName);
-
-          return (
-            <a
-              key={file._id}
-              href={fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-colors"
-            >
-              {isImage ? (
-                <>
-                  <img
-                    src={fileUrl}
-                    alt={file.originalFileName}
-                    className="w-20 h-20 object-cover rounded"
-                  />
-                  <div className="text-xs text-center text-gray-700 truncate w-full" title={file.originalFileName}>
-                    {file.originalFileName}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-3xl">📎</div>
-                  <div className="text-xs text-center text-gray-700 truncate w-full" title={file.originalFileName}>
-                    {file.originalFileName}
-                  </div>
-                </>
-              )}
-            </a>
-          );
-        })}
+        {files.map(file => (
+          <FileItemComponent
+            key={file._id}
+            file={file}
+            onFileDeleted={handleFileDeleted}
+            onFileRenamed={handleFileRenamed}
+          />
+        ))}
       </div>
 
       {nextCursor && (
