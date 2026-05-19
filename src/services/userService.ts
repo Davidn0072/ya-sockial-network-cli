@@ -77,4 +77,24 @@ export const userService = {
 
     return response.json();
   },
+
+  async updateUserProfile(userId: string, data: any): Promise<any> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/users/${userId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update user profile');
+    }
+
+    return response.json();
+  },
 };
