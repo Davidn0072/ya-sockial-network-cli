@@ -37,53 +37,53 @@ export function PostActions({
     <div className="border-t border-gray-200 pt-4 mt-4">
       <div className="flex gap-4 text-sm text-gray-600">
         {/* Reactions */}
-        <div className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-gray-50 rounded transition-colors">
+        <div className="flex-1 flex items-center justify-center gap-2 py-2 bg-purple-50 rounded transition-all hover:bg-purple-100 hover:scale-105 font-bold text-purple-600">
           <ReactionButton
             targetId={postId}
             targetType="post"
             onReactionSuccess={onReactionSuccess}
             onViewReactions={onViewReactions}
           />
-          <span>{totalReactions}</span>
-          <span className="text-xs">Reactions</span>
+          <span className="font-bold text-purple-700 text-lg">{totalReactions}</span>
+          <span className="text-xs font-bold text-purple-600">Reactions</span>
         </div>
 
         {/* Comments */}
         <button
           onClick={onCommentsClick}
-          className="flex items-center gap-2 hover:text-blue-500 transition-colors flex-1 justify-center py-2 hover:bg-gray-50 rounded"
+          className="flex items-center gap-2 text-blue-600 transition-all flex-1 justify-center py-2 bg-blue-50 rounded font-bold hover:bg-blue-100 hover:scale-105"
         >
-          <span className="text-lg">💬</span>
-          <span>{commentsCount}</span>
-          <span className="text-xs">Comments</span>
+          <span className="text-2xl">💬</span>
+          <span className="font-bold text-blue-700">{commentsCount}</span>
+          <span className="text-xs font-bold text-blue-600">Comments</span>
         </button>
 
         {/* Files */}
         <button
           onClick={onFilesClick}
-          className="flex items-center gap-2 hover:text-blue-500 transition-colors flex-1 justify-center py-2 hover:bg-gray-50 rounded"
+          className="flex items-center gap-2 text-green-600 transition-all flex-1 justify-center py-2 bg-green-50 rounded font-bold hover:bg-green-100 hover:scale-105"
         >
-          <span className="text-lg">📎</span>
-          <span>{filesCount}</span>
-          <span className="text-xs">Files</span>
+          <span className="text-2xl">📎</span>
+          <span className="font-bold text-green-700">{filesCount}</span>
+          <span className="text-xs font-bold text-green-600">Files</span>
         </button>
 
         {/* Edit */}
         <button
           onClick={onEditClick}
-          className="flex items-center gap-2 hover:text-yellow-600 transition-colors flex-1 justify-center py-2 hover:bg-gray-50 rounded"
+          className="flex items-center gap-2 text-amber-600 transition-all flex-1 justify-center py-2 bg-amber-50 rounded font-bold hover:bg-amber-100 hover:scale-105"
         >
-          <span className="text-lg">✏️</span>
-          <span className="text-xs">Edit</span>
+          <span className="text-2xl">✏️</span>
+          <span className="text-xs font-bold text-amber-600">Edit</span>
         </button>
 
         {/* Delete */}
         <button
           onClick={onDeleteClick}
-          className="flex items-center gap-2 hover:text-red-600 transition-colors flex-1 justify-center py-2 hover:bg-gray-50 rounded"
+          className="flex items-center gap-2 text-red-600 transition-all flex-1 justify-center py-2 bg-red-50 rounded font-bold hover:bg-red-100 hover:scale-105"
         >
-          <span className="text-lg">🗑️</span>
-          <span className="text-xs">Delete</span>
+          <span className="text-2xl">🗑️</span>
+          <span className="text-xs font-bold text-red-600">Delete</span>
         </button>
       </div>
     </div>
