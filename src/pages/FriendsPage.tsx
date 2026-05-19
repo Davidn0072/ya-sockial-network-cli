@@ -175,7 +175,7 @@ export function FriendsPage() {
         <h1 className="text-4xl font-bold mb-8 text-gray-900">FRIENDS</h1>
 
         {/* Send Friend Request Section */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden p-8 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
           <h2 className="text-2xl font-bold mb-6 text-gray-800">📤 Send Friend Request</h2>
 
           <div className="space-y-4">
