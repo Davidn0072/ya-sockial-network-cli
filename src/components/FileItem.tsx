@@ -133,7 +133,7 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
               {/* Rename Button */}
               <button
                 onClick={handleRenameClick}
-                className="p-1.5 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+                className="p-1.5 bg-slate-700 text-white rounded hover:bg-slate-800 transition-colors shadow-md"
                 title="Rename file"
               >
                 <span className="text-sm">✏️</span>
@@ -142,7 +142,7 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
               {/* Delete Button */}
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="p-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                className="p-1.5 bg-rose-600 text-white rounded hover:bg-rose-700 transition-colors shadow-md"
                 title="Delete file"
               >
                 <span className="text-sm">🗑️</span>
