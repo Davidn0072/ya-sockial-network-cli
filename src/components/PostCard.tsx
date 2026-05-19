@@ -175,11 +175,22 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
         onViewReactions={() => setIsLikesPopupOpen(true)}
         onCommentIconClick={() => {
           setShowComments(true);
+          setShowFiles(false);
           setFocusCommentInput(true);
         }}
-        onCommentCountClick={() => setShowComments(!showComments)}
+        onCommentCountClick={() => {
+          setShowComments(!showComments);
+          if (!showComments) {
+            setShowFiles(false);
+          }
+        }}
         onFileIconClick={() => setShowUploadModal(true)}
-        onFilesClick={() => setShowFiles(!showFiles)}
+        onFilesClick={() => {
+          setShowFiles(!showFiles);
+          if (!showFiles) {
+            setShowComments(false);
+          }
+        }}
         onEditClick={() => onEditPost?.(post)}
         onDeleteClick={handleDeletePost}
       />
