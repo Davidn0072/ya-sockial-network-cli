@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { userService } from '../services/userService';
 import postService from '../services/postService';
+import { friendService } from '../services/friendService';
+import { AuthContext } from '../contexts/AuthContext';
 import { TopNavbar } from '../components/TopNavbar';
 import { PostCard } from '../components/PostCard';
 import CreatePostModal from '../components/CreatePostModal';
@@ -18,6 +20,7 @@ interface UserProfile {
 export function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [allUserPosts, setAllUserPosts] = useState<Post[]>([]);
@@ -26,6 +29,9 @@ export function UserProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<{ _id: string; content: string } | null>(null);
+  const [friendRequestLoading, setFriendRequestLoading] = useState(false);
+  const [friendRequestSent, setFriendRequestSent] = useState(false);
+  const [friendRequestError, setFriendRequestError] = useState<string | null>(null);
 
   useEffect(() => {
     if (userId) {
@@ -90,6 +96,21 @@ export function UserProfilePage() {
     loadUserPosts();
   };
 
+  const handleSendFriendRequest = async () => {
+    if (!userId) return;
+
+    setFriendRequestLoading(true);
+    setFriendRequestError(null);
+    try {
+      await friendService.sendFriendRequest(userId);
+      setFriendRequestSent(true);
+    } catch (err) {
+      setFriendRequestError(err instanceof Error ? err.message : 'Failed to send friend request');
+    } finally {
+      setFriendRequestLoading(false);
+    }
+  };
+
   const getInitial = (name: string) => {
     return name.charAt(0).toUpperCase();
   };
@@ -147,6 +168,13 @@ export function UserProfilePage() {
               </button>
             </div>
 
+            {/* Friend Request Error */}
+            {friendRequestError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-600">
+                {friendRequestError}
+              </div>
+            )}
+
             {/* Profile Header Card */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
               {/* Cover Background with Profile Info */}
@@ -163,6 +191,21 @@ export function UserProfilePage() {
                   <h1 className="text-4xl font-bold mb-2">{profile.name}</h1>
                   <p className="text-blue-100 text-lg">{profile.email}</p>
                 </div>
+
+                {/* FRIEND Button */}
+                {authContext?.user?.id !== userId && (
+                  <button
+                    onClick={handleSendFriendRequest}
+                    disabled={friendRequestLoading || friendRequestSent}
+                    className={`ml-4 px-6 py-2 rounded-lg font-medium transition-colors ${
+                      friendRequestSent
+                        ? 'bg-green-500 text-white hover:bg-green-600'
+                        : 'bg-white text-blue-600 hover:bg-gray-100'
+                    } ${friendRequestLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  >
+                    {friendRequestLoading ? 'Sending...' : friendRequestSent ? '✓ Sent' : 'FRIEND'}
+                  </button>
+                )}
               </div>
 
               {/* Profile Details Grid */}
