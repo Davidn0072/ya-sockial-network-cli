@@ -40,17 +40,24 @@ export function FriendsPage() {
 
   const loadFriendsData = async () => {
     setLoading(true);
+    console.log('🔄 Loading friends data...');
     try {
       const [requestsData, friendsData, rejectedData] = await Promise.all([
         friendService.getFriendRequests(),
         friendService.getFriends(),
         friendService.getRejectedFriends()
       ]);
+      console.log('📩 Requests data:', requestsData);
+      console.log('👫 Friends data:', friendsData);
+      console.log('❌ Rejected data:', rejectedData);
+
       setFriendRequests(Array.isArray(requestsData) ? requestsData : requestsData.requests || []);
       setFriends(Array.isArray(friendsData) ? friendsData : friendsData.friends || []);
-      setRejectedFriends(Array.isArray(rejectedData) ? rejectedData : rejectedData.friends || []);
+      setRejectedFriends(Array.isArray(rejectedData) ? rejectedData : rejectedData.requests || []);
+
+      console.log('✅ Friends data loaded successfully');
     } catch (err) {
-      console.error('Failed to load friends data:', err);
+      console.error('❌ Failed to load friends data:', err);
     } finally {
       setLoading(false);
     }
@@ -95,20 +102,24 @@ export function FriendsPage() {
   };
 
   const handleAcceptRequest = async (requestId: string) => {
+    console.log('✅ Accepting request ID:', requestId);
     try {
-      await friendService.acceptRequest(requestId);
+      const result = await friendService.acceptRequest(requestId);
+      console.log('✅ Request accepted successfully:', result);
       loadFriendsData();
     } catch (err) {
-      console.error('Failed to accept request:', err);
+      console.error('❌ Failed to accept request:', err);
     }
   };
 
   const handleRejectRequest = async (requestId: string) => {
+    console.log('🚫 Rejecting request ID:', requestId);
     try {
-      await friendService.rejectRequest(requestId);
+      const result = await friendService.rejectRequest(requestId);
+      console.log('✅ Request rejected successfully:', result);
       loadFriendsData();
     } catch (err) {
-      console.error('Failed to reject request:', err);
+      console.error('❌ Failed to reject request:', err);
     }
   };
 
@@ -220,9 +231,13 @@ export function FriendsPage() {
           </div>
         ) : (
           <>
+            {(() => {
+              console.log('📊 Rendering FriendsPage - friendRequests:', friendRequests.length, 'rejectedFriends:', rejectedFriends.length);
+              return null;
+            })()}
             {/* Friend Requests Section */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden p-8 mb-8">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">📩 Incoming Requests</h2>
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">📩 Incoming Requests ({friendRequests.length})</h2>
               {friendRequests.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No pending requests</p>
               ) : (
@@ -286,6 +301,10 @@ export function FriendsPage() {
 
             {/* Rejected Friends Section */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden p-8">
+              {(() => {
+                console.log('❌ Rejected Friends Count:', rejectedFriends.length, 'Data:', rejectedFriends);
+                return null;
+              })()}
               <h2 className="text-2xl font-bold mb-6 text-gray-800">❌ Rejected Friends ({rejectedFriends.length})</h2>
               {rejectedFriends.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No rejected friends</p>
