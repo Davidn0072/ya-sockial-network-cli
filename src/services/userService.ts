@@ -6,6 +6,8 @@ const API_URL = config.API_URL;
 interface User {
   _id: string;
   name: string;
+  email?: string;
+  domainofinterest?: string[];
   user?: string;
 }
 
@@ -49,12 +51,30 @@ export const userService = {
   },
 
   async resolveUserIdFromUsername(username: string): Promise<string | null> {
-    const users = await this.searchUsers(username);
-    if (!users.length) return null;
+    const result = await this.searchUsers(username);
+    if (!result.users.length) return null;
 
-    const exact = users.find(u =>
+    const exact = result.users.find(u =>
       (u.user || u.name).toLowerCase() === username.toLowerCase()
     );
-    return (exact || users[0])._id;
+    return (exact || result.users[0])._id;
+  },
+
+  async getUserProfile(userId: string): Promise<User> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/users/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user profile');
+    }
+
+    return response.json();
   },
 };
