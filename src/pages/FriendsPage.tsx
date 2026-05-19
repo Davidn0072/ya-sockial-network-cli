@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { friendService } from '../services/friendService';
-import { userService } from '../services/userService';
 import { TopNavbar } from '../components/TopNavbar';
+import { UserSearchDropdown } from '../components/UserSearchDropdown';
 
 interface FriendRequest {
   _id: string;
@@ -28,8 +28,6 @@ export function FriendsPage() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [rejectedFriends, setRejectedFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [sendingRequest, setSendingRequest] = useState(false);
   const [sendMessage, setSendMessage] = useState<string | null>(null);
@@ -67,20 +65,8 @@ export function FriendsPage() {
     }
   };
 
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
-    if (query.trim().length < 2) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      const result = await userService.searchUsers(query);
-      setSearchResults(result.users || []);
-    } catch (err) {
-      console.error('Failed to search users:', err);
-      setSearchResults([]);
-    }
+  const handleUserSelected = (user: User) => {
+    setSelectedUser(user);
   };
 
   const handleSendFriendRequest = async () => {
@@ -95,8 +81,6 @@ export function FriendsPage() {
       await friendService.sendFriendRequest(selectedUser._id);
       setSendMessage('✓ Friend request sent!');
       setSelectedUser(null);
-      setSearchQuery('');
-      setSearchResults([]);
       setTimeout(() => setSendMessage(null), 3000);
     } catch (err) {
       setSendMessage(err instanceof Error ? err.message : 'Failed to send friend request');
@@ -197,40 +181,8 @@ export function FriendsPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Search User</label>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                placeholder="Type name or email..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <UserSearchDropdown onUserSelect={handleUserSelected} placeholder="Type name or email..." />
             </div>
-
-            {/* Search Results */}
-            {searchResults.length > 0 && (
-              <div className="border border-gray-300 rounded-lg overflow-hidden">
-                <div className="max-h-48 overflow-y-auto">
-                  {searchResults.map((user) => (
-                    <button
-                      key={user._id}
-                      onClick={() => {
-                        setSelectedUser(user);
-                        setSearchQuery('');
-                        setSearchResults([]);
-                      }}
-                      className={`w-full px-4 py-3 text-left border-b last:border-b-0 transition-colors ${
-                        selectedUser?._id === user._id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white hover:bg-gray-100'
-                      }`}
-                    >
-                      <p className="font-semibold">{user.name}</p>
-                      <p className="text-sm opacity-75">{user.email}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Selected User Display */}
             {selectedUser && (
