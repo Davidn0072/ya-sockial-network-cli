@@ -11,6 +11,7 @@ export type Comment = {
     name: string;
   };
   postId: string;
+  parentCommentId?: string;
   createdAt: string;
   updatedAt?: string;
   likesCount?: number;
@@ -50,6 +51,41 @@ const commentService = {
 
     if (!response.ok) {
       throw new Error('Failed to fetch comments');
+    }
+
+    return response.json();
+  },
+
+  async getNestedComments(
+    postId: string,
+    parentCommentId: string,
+    limit: number = 5,
+    cursor: string | null = null
+  ): Promise<CommentsResponse> {
+    const token = authService.getToken();
+
+    const params = new URLSearchParams({
+      postId,
+      parentCommentId,
+      limit: String(limit),
+    });
+
+    if (cursor) {
+      params.append('cursor', cursor);
+    }
+
+    const url = `${API_URL}/comments?${params.toString()}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch nested comments');
     }
 
     return response.json();

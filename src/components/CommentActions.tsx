@@ -12,6 +12,8 @@ interface CommentActionsProps {
   };
   onReactionSuccess?: () => void;
   onViewReactions?: () => void;
+  onToggleReplies?: () => void;
+  repliesIsVisible?: boolean;
 }
 
 export function CommentActions({
@@ -19,6 +21,8 @@ export function CommentActions({
   likesStats,
   onReactionSuccess,
   onViewReactions,
+  onToggleReplies,
+  repliesIsVisible,
 }: CommentActionsProps) {
   const totalReactions = likesStats?.total || 0;
 
@@ -46,9 +50,10 @@ export function CommentActions({
 
       {/* Show Replies Link */}
       <button
+        onClick={onToggleReplies}
         className="text-xs text-blue-500 hover:text-blue-700 hover:underline transition-colors"
       >
-        Show Replies
+        {repliesIsVisible ? 'Hide Replies' : 'Show Replies'}
       </button>
     </div>
   );

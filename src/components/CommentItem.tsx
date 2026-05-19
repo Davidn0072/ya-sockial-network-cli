@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import type { Comment } from '../services/commentService';
 import { CommentActions } from './CommentActions';
 import LikesPopup from './LikesPopup';
+import { NestedRepliesList } from './NestedRepliesList';
+import { useNestedComments } from '../hooks/useNestedComments';
 import { fetchLikesStats } from '../services/likesService';
 
 interface CommentItemProps {
@@ -9,6 +11,7 @@ interface CommentItemProps {
 }
 
 export function CommentItem({ comment }: CommentItemProps) {
+  const nestedComments = useNestedComments(comment.postId, comment._id);
   const [likesStats, setLikesStats] = useState(comment.likesCount ? { total: comment.likesCount } : { total: 0 });
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
 
@@ -89,7 +92,20 @@ export function CommentItem({ comment }: CommentItemProps) {
           likesStats={likesStats}
           onReactionSuccess={loadLikesStats}
           onViewReactions={() => setIsLikesPopupOpen(true)}
+          onToggleReplies={nestedComments.toggleReplies}
+          repliesIsVisible={nestedComments.isVisible}
         />
+
+        {/* Nested Replies */}
+        {nestedComments.isVisible && (
+          <NestedRepliesList
+            replies={nestedComments.replies}
+            isLoading={nestedComments.isLoading}
+            error={nestedComments.error}
+            hasMore={nestedComments.hasMore}
+            onLoadMore={nestedComments.loadMore}
+          />
+        )}
       </div>
 
       {/* Likes Popup */}
