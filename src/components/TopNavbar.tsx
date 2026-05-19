@@ -24,6 +24,12 @@ export function TopNavbar({ activeTab, onTabChange }: TopNavbarProps) {
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="text-2xl font-bold">SockNetwork</div>
+          <button
+            onClick={handleProfileClick}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+          >
+            👤 {user?.name || 'Profile'}
+          </button>
         </div>
 
         <div className="flex items-center gap-8">
@@ -36,13 +42,6 @@ export function TopNavbar({ activeTab, onTabChange }: TopNavbarProps) {
             }`}
           >
             🏠 Feed
-          </button>
-
-          <button
-            onClick={handleProfileClick}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
-          >
-            👤 {user?.name || 'Profile'}
           </button>
 
           <button
