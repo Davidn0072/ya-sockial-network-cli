@@ -34,6 +34,12 @@ export function FriendsPage() {
   const [sendingRequest, setSendingRequest] = useState(false);
   const [sendMessage, setSendMessage] = useState<string | null>(null);
 
+  // Pagination state
+  const [requestsCursor, setRequestsCursor] = useState<string | null>(null);
+  const [friendsCursor, setFriendsCursor] = useState<string | null>(null);
+  const [rejectedCursor, setRejectedCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState<'requests' | 'friends' | 'rejected' | null>(null);
+
   useEffect(() => {
     loadFriendsData();
   }, []);
@@ -47,8 +53,13 @@ export function FriendsPage() {
         friendService.getRejectedFriends()
       ]);
       setFriendRequests(Array.isArray(requestsData) ? requestsData : requestsData.requests || []);
+      setRequestsCursor((!Array.isArray(requestsData) && requestsData.nextCursor) || null);
+
       setFriends(Array.isArray(friendsData) ? friendsData : friendsData.friends || []);
+      setFriendsCursor((!Array.isArray(friendsData) && friendsData.nextCursor) || null);
+
       setRejectedFriends(Array.isArray(rejectedData) ? rejectedData : rejectedData.requests || []);
+      setRejectedCursor((!Array.isArray(rejectedData) && rejectedData.nextCursor) || null);
     } catch (err) {
       console.error('Failed to load friends data:', err);
     } finally {
@@ -118,6 +129,48 @@ export function FriendsPage() {
       loadFriendsData();
     } catch (err) {
       console.error('Failed to unfriend:', err);
+    }
+  };
+
+  const handleLoadMoreRequests = async () => {
+    setLoadingMore('requests');
+    try {
+      const data = await friendService.getFriendRequests(requestsCursor);
+      const newRequests = Array.isArray(data) ? data : data.requests || [];
+      setFriendRequests([...friendRequests, ...newRequests]);
+      setRequestsCursor((!Array.isArray(data) && data.nextCursor) || null);
+    } catch (err) {
+      console.error('Failed to load more requests:', err);
+    } finally {
+      setLoadingMore(null);
+    }
+  };
+
+  const handleLoadMoreFriends = async () => {
+    setLoadingMore('friends');
+    try {
+      const data = await friendService.getFriends(friendsCursor);
+      const newFriends = Array.isArray(data) ? data : data.friends || [];
+      setFriends([...friends, ...newFriends]);
+      setFriendsCursor((!Array.isArray(data) && data.nextCursor) || null);
+    } catch (err) {
+      console.error('Failed to load more friends:', err);
+    } finally {
+      setLoadingMore(null);
+    }
+  };
+
+  const handleLoadMoreRejected = async () => {
+    setLoadingMore('rejected');
+    try {
+      const data = await friendService.getRejectedFriends(rejectedCursor);
+      const newRejected = Array.isArray(data) ? data : data.requests || [];
+      setRejectedFriends([...rejectedFriends, ...newRejected]);
+      setRejectedCursor((!Array.isArray(data) && data.nextCursor) || null);
+    } catch (err) {
+      console.error('Failed to load more rejected friends:', err);
+    } finally {
+      setLoadingMore(null);
     }
   };
 
@@ -226,33 +279,44 @@ export function FriendsPage() {
               {friendRequests.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No pending requests</p>
               ) : (
-                <div className="space-y-3">
-                  {friendRequests.map((req) => (
-                    <div
-                      key={req._id}
-                      className="flex items-center justify-between bg-blue-50 p-4 rounded-lg border border-blue-200"
+                <>
+                  <div className="space-y-3 mb-4">
+                    {friendRequests.map((req) => (
+                      <div
+                        key={req._id}
+                        className="flex items-center justify-between bg-blue-50 p-4 rounded-lg border border-blue-200"
+                      >
+                        <div>
+                          <p className="font-semibold text-gray-800">{req.name}</p>
+                          <p className="text-sm text-gray-600">{req.email}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleAcceptRequest(req._id)}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                          >
+                            ✓ Accept
+                          </button>
+                          <button
+                            onClick={() => handleRejectRequest(req._id)}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                          >
+                            ✕ Reject
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {requestsCursor && (
+                    <button
+                      onClick={handleLoadMoreRequests}
+                      disabled={loadingMore === 'requests'}
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors text-sm font-medium"
                     >
-                      <div>
-                        <p className="font-semibold text-gray-800">{req.name}</p>
-                        <p className="text-sm text-gray-600">{req.email}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleAcceptRequest(req._id)}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                        >
-                          ✓ Accept
-                        </button>
-                        <button
-                          onClick={() => handleRejectRequest(req._id)}
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                        >
-                          ✕ Reject
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      {loadingMore === 'requests' ? 'Loading...' : 'Load More Requests'}
+                    </button>
+                  )}
+                </>
               )}
             </div>
 
@@ -262,25 +326,36 @@ export function FriendsPage() {
               {friends.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No friends yet</p>
               ) : (
-                <div className="space-y-3">
-                  {friends.map((friend) => (
-                    <div
-                      key={friend._id}
-                      className="flex items-center justify-between bg-green-50 p-4 rounded-lg border border-green-200"
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-800">{friend.name}</p>
-                        <p className="text-sm text-gray-600">{friend.email}</p>
-                      </div>
-                      <button
-                        onClick={() => handleUnfriend(friend._id)}
-                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+                <>
+                  <div className="space-y-3 mb-4">
+                    {friends.map((friend) => (
+                      <div
+                        key={friend._id}
+                        className="flex items-center justify-between bg-green-50 p-4 rounded-lg border border-green-200"
                       >
-                        💔 Unfriend
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                        <div>
+                          <p className="font-semibold text-gray-800">{friend.name}</p>
+                          <p className="text-sm text-gray-600">{friend.email}</p>
+                        </div>
+                        <button
+                          onClick={() => handleUnfriend(friend._id)}
+                          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+                        >
+                          💔 Unfriend
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  {friendsCursor && (
+                    <button
+                      onClick={handleLoadMoreFriends}
+                      disabled={loadingMore === 'friends'}
+                      className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors text-sm font-medium"
+                    >
+                      {loadingMore === 'friends' ? 'Loading...' : 'Load More Friends'}
+                    </button>
+                  )}
+                </>
               )}
             </div>
 
@@ -290,19 +365,30 @@ export function FriendsPage() {
               {rejectedFriends.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No rejected friends</p>
               ) : (
-                <div className="space-y-3">
-                  {rejectedFriends.map((friend) => (
-                    <div
-                      key={friend._id}
-                      className="flex items-center justify-between bg-red-50 p-4 rounded-lg border border-red-200"
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-800">{friend.name}</p>
-                        <p className="text-sm text-gray-600">{friend.email}</p>
+                <>
+                  <div className="space-y-3 mb-4">
+                    {rejectedFriends.map((friend) => (
+                      <div
+                        key={friend._id}
+                        className="flex items-center justify-between bg-red-50 p-4 rounded-lg border border-red-200"
+                      >
+                        <div>
+                          <p className="font-semibold text-gray-800">{friend.name}</p>
+                          <p className="text-sm text-gray-600">{friend.email}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                  {rejectedCursor && (
+                    <button
+                      onClick={handleLoadMoreRejected}
+                      disabled={loadingMore === 'rejected'}
+                      className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors text-sm font-medium"
+                    >
+                      {loadingMore === 'rejected' ? 'Loading...' : 'Load More Rejected'}
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </>

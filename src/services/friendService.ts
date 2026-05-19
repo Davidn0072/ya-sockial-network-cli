@@ -24,10 +24,12 @@ export const friendService = {
     return response.json();
   },
 
-  async getFriendRequests(): Promise<any[]> {
+  async getFriendRequests(cursor?: string | null): Promise<any> {
     const token = authService.getToken();
+    const params = new URLSearchParams({ limit: '10' });
+    if (cursor) params.set('cursor', cursor);
 
-    const response = await fetch(`${API_URL}/friends/requests`, {
+    const response = await fetch(`${API_URL}/friends/requests?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -42,10 +44,12 @@ export const friendService = {
     return response.json();
   },
 
-  async getFriends(): Promise<any[]> {
+  async getFriends(cursor?: string | null): Promise<any> {
     const token = authService.getToken();
+    const params = new URLSearchParams({ limit: '10' });
+    if (cursor) params.set('cursor', cursor);
 
-    const response = await fetch(`${API_URL}/friends/accepted`, {
+    const response = await fetch(`${API_URL}/friends/accepted?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -119,10 +123,12 @@ export const friendService = {
     return response.json();
   },
 
-  async getRejectedFriends(): Promise<any[]> {
+  async getRejectedFriends(cursor?: string | null): Promise<any> {
     const token = authService.getToken();
+    const params = new URLSearchParams({ limit: '10' });
+    if (cursor) params.set('cursor', cursor);
 
-    const response = await fetch(`${API_URL}/friends/rejected`, {
+    const response = await fetch(`${API_URL}/friends/rejected?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
