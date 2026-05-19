@@ -29,34 +29,35 @@ export function CommentActions({
   const totalReactions = likesStats?.total || 0;
 
   return (
-    <div className="flex items-center gap-3 mt-2">
+    <div className="flex items-center gap-2 mt-3 flex-wrap">
       {/* Reaction Button */}
-      <ReactionButton
-        targetId={commentId}
-        targetType="comment"
-        onReactionSuccess={onReactionSuccess}
-        onViewReactions={onViewReactions}
-      />
-
-      {/* Likes Count */}
-      {totalReactions > 0 && (
-        <span className="text-xs text-gray-500">{totalReactions} reactions</span>
-      )}
+      <div className="flex items-center gap-2 bg-purple-50 px-3 py-1 rounded font-bold text-purple-600 hover:bg-purple-100 transition-all hover:scale-105">
+        <ReactionButton
+          targetId={commentId}
+          targetType="comment"
+          onReactionSuccess={onReactionSuccess}
+          onViewReactions={onViewReactions}
+        />
+        {totalReactions > 0 && (
+          <>
+            <span className="text-xs font-bold text-purple-700">{totalReactions}</span>
+            <span className="text-xs font-bold text-purple-600">Reactions</span>
+          </>
+        )}
+      </div>
 
       {/* Reply Button */}
-      <button
-        onClick={onReply}
-        className="text-xs text-gray-500 hover:text-gray-700 hover:font-semibold transition-colors"
-      >
-        Reply
-      </button>
+      <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded font-bold text-green-600 hover:bg-green-100 transition-all hover:scale-105 cursor-pointer" onClick={onReply}>
+        <span className="text-lg">💬</span>
+        <span className="text-xs font-bold text-green-600">Reply</span>
+      </div>
 
       {/* Show Replies Link */}
       <button
         onClick={onToggleReplies}
-        className="text-xs text-blue-500 hover:text-blue-700 hover:underline transition-colors"
+        className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded hover:bg-blue-100 transition-all hover:scale-105 flex items-center gap-1"
       >
-        {repliesIsVisible ? 'Hide Replies' : 'Show Replies'}
+        <span className="text-lg">{repliesIsVisible ? '👁️' : '👁️'}</span> {repliesIsVisible ? 'Hide Replies' : 'Show Replies'}
       </button>
     </div>
   );
