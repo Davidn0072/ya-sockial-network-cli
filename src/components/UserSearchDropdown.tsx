@@ -103,15 +103,15 @@ export function UserSearchDropdown({
         >
           {userSuggestions.length > 0 ? (
             <>
-              <div className="max-h-80 overflow-y-auto">
+              <div className="max-h-[420px] overflow-y-auto">
                 {userSuggestions.map((user) => (
                   <div
                     key={user._id}
                     onClick={() => handleUserSelect(user)}
-                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
+                    className="px-3 py-1 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
                   >
-                    <p className="font-semibold text-gray-800">{user.name}</p>
-                    <p className="text-sm text-gray-600">{user.email}</p>
+                    <p className="font-semibold text-gray-800 text-sm leading-tight">{user.name}</p>
+                    <p className="text-xs text-gray-600 leading-tight">{user.email}</p>
                   </div>
                 ))}
               </div>
