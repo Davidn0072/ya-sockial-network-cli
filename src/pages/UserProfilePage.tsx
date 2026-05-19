@@ -20,6 +20,7 @@ export function UserProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [allUserPosts, setAllUserPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export function UserProfilePage() {
     setPostsLoading(true);
     try {
       const userPosts = await postService.getPostsByUser(userId);
+      setAllUserPosts(userPosts);
       setPosts(userPosts.slice(0, 4));
     } catch (err) {
       console.error('Failed to load user posts:', err);
@@ -63,12 +65,10 @@ export function UserProfilePage() {
   };
 
   const handleLoadMorePosts = async () => {
-    if (!userId) return;
-
     setPostsLoading(true);
     try {
-      const userPosts = await postService.getPostsByUser(userId);
-      setPosts(userPosts.slice(0, posts.length + 4));
+      const nextBatch = posts.length + 4;
+      setPosts(allUserPosts.slice(0, nextBatch));
     } catch (err) {
       console.error('Failed to load more posts:', err);
     } finally {
@@ -222,7 +222,7 @@ export function UserProfilePage() {
                   ))}
                 </div>
 
-                {posts.length > 0 && (
+                {posts.length < allUserPosts.length && (
                   <div className="text-center">
                     <button
                       onClick={handleLoadMorePosts}
