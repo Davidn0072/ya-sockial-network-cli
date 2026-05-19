@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { EditUserProfilePage } from './pages/EditUserProfilePage';
 import { ViewProfilePage } from './pages/ViewProfilePage';
+import { FriendsPage } from './pages/FriendsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -35,6 +36,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <EditUserProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/friends"
+              element={
+                <ProtectedRoute>
+                  <FriendsPage />
                 </ProtectedRoute>
               }
             />
