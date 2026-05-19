@@ -6,8 +6,8 @@ import { TopNavbar } from '../components/TopNavbar';
 interface UserProfile {
   _id: string;
   name: string;
-  email: string;
-  domainofinterest: string[];
+  email?: string;
+  domainofinterest?: string[];
   createdAt?: string;
 }
 
@@ -67,7 +67,7 @@ export function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopNavbar />
+      <TopNavbar activeTab="profile" onTabChange={() => {}} />
 
       <div className="max-w-3xl mx-auto py-8 px-4">
         {loading ? (
@@ -87,47 +87,42 @@ export function UserProfilePage() {
         ) : profile ? (
           <>
             {/* Profile Header Card */}
-            <div className="bg-white rounded-lg shadow-md p-8 mb-6">
-              {/* Cover Background */}
-              <div className="h-32 bg-gradient-to-r from-blue-400 to-purple-600 rounded-lg mb-6"></div>
-
-              {/* Profile Info */}
-              <div className="flex items-end gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+              {/* Cover Background with Profile Info */}
+              <div className="h-56 bg-gradient-to-r from-blue-400 to-purple-600 rounded-t-lg relative flex items-end p-8">
+                {/* Avatar */}
                 <div
-                  className={`w-24 h-24 bg-gradient-to-br ${colors[colorIndex]} rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white -mt-16`}
+                  className={`w-32 h-32 bg-gradient-to-br ${colors[colorIndex]} rounded-full flex items-center justify-center text-white text-5xl font-bold border-4 border-white shadow-lg`}
                 >
                   {getInitial(profile.name)}
                 </div>
-                <div className="flex-1">
-                  <h1 className="text-4xl font-bold text-gray-900">{profile.name}</h1>
+
+                {/* User Info in Blue Area */}
+                <div className="flex-1 ml-8 text-white mb-2">
+                  <h1 className="text-4xl font-bold mb-2">{profile.name}</h1>
+                  <p className="text-blue-100 text-lg">{profile.email}</p>
                 </div>
               </div>
 
               {/* Profile Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Email Section */}
-                <div>
-                  <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                    Email
-                  </label>
-                  <p className="text-lg text-gray-800 mt-2">{profile.email}</p>
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Member Since Section */}
+                  {profile.createdAt && (
+                    <div>
+                      <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                        Member Since
+                      </label>
+                      <p className="text-lg text-gray-800 mt-2">
+                        {new Date(profile.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  )}
                 </div>
-
-                {/* Member Since Section */}
-                {profile.createdAt && (
-                  <div>
-                    <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                      Member Since
-                    </label>
-                    <p className="text-lg text-gray-800 mt-2">
-                      {new Date(profile.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 
