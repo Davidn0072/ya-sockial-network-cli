@@ -44,9 +44,6 @@ const postService = {
       url += `&userId=${encodeURIComponent(authorId)}`;
     }
 
-    console.log('🔗 Calling endpoint:', url);
-    console.log('📦 Token:', token ? '✓ Token exists' : '❌ No token');
-
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -55,16 +52,13 @@ const postService = {
       },
     });
 
-    console.log('📡 Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Error response:', errorText);
+      console.error('Error response:', errorText);
       throw new Error(`Failed to fetch posts (${response.status}): ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('✅ Posts data:', data);
     const posts = Array.isArray(data) ? data : data.posts || [];
     const nextCursor = data.nextCursor || null;
     return { posts, nextCursor };

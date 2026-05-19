@@ -24,7 +24,6 @@ interface AuthResponse {
 
 export const authService = {
   async register(data: RegisterData): Promise<AuthResponse> {
-    console.log('📝 Registering:', data.email);
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -33,17 +32,15 @@ export const authService = {
 
     if (!response.ok) {
       const error = await response.json();
-      console.error('❌ Register error:', error);
+      console.error('Register error:', error);
       throw new Error(error.message || 'Registration failed');
     }
 
     const result = await response.json();
-    console.log('✅ Register response:', result);
     return result;
   },
 
   async login(data: LoginData): Promise<AuthResponse> {
-    console.log('🔐 Logging in:', data.email);
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -52,12 +49,11 @@ export const authService = {
 
     if (!response.ok) {
       const error = await response.json();
-      console.error('❌ Login error:', error);
+      console.error('Login error:', error);
       throw new Error(error.message || 'Login failed');
     }
 
     const result = await response.json();
-    console.log('✅ Login response:', result);
     return result;
   },
 
@@ -68,12 +64,10 @@ export const authService = {
 
   getToken(): string | null {
     const token = localStorage.getItem('token');
-    console.log('🔑 Getting token:', token ? token.substring(0, 20) + '...' : '❌ No token');
     return token;
   },
 
   setToken(token: string) {
-    console.log('💾 Saving token:', token.substring(0, 20) + '...');
     localStorage.setItem('token', token);
   },
 
@@ -91,10 +85,8 @@ export const authService = {
   setUser(user: any) {
     if (typeof user === 'string') {
       localStorage.setItem('user', user);
-      console.log('💾 Saving user:', user);
     } else if (user?.name) {
       localStorage.setItem('user', JSON.stringify(user));
-      console.log('💾 Saving user:', user);
     }
   },
 };

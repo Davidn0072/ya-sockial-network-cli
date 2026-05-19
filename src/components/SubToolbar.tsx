@@ -67,10 +67,8 @@ export function SubToolbar({
     e.stopPropagation();
     if (!nextCursor || !currentQuery.trim()) return;
     try {
-      console.log('📄 Loading more users with cursor:', nextCursor);
       setPrevCursors([...prevCursors, nextCursor]);
       const result = await userService.searchUsers(currentQuery, nextCursor);
-      console.log('✅ Received users:', result.users.length, 'nextCursor:', result.nextCursor);
       setUserSuggestions(result.users);
       setNextCursor(result.nextCursor);
     } catch (error) {
@@ -87,9 +85,7 @@ export function SubToolbar({
       const prevCursor = newPrevCursors.pop();
       if (!prevCursor) return;
       setPrevCursors(newPrevCursors);
-      console.log('⬅️ Loading previous users with cursor:', prevCursor);
       const result = await userService.searchUsers(currentQuery, prevCursor);
-      console.log('✅ Received users:', result.users.length, 'nextCursor:', result.nextCursor);
       setUserSuggestions(result.users);
       setNextCursor(prevCursor);
     } catch (error) {
