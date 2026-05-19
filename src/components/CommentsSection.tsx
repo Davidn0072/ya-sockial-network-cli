@@ -7,9 +7,10 @@ interface CommentsSectionProps {
   postId: string;
   focusInput?: boolean;
   onFocusHandled?: () => void;
+  onCommentAdded?: () => void;
 }
 
-export function CommentsSection({ postId, focusInput = false, onFocusHandled }: CommentsSectionProps) {
+export function CommentsSection({ postId, focusInput = false, onFocusHandled, onCommentAdded }: CommentsSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +60,7 @@ export function CommentsSection({ postId, focusInput = false, onFocusHandled }: 
 
   const handleCommentSuccess = (newComment: Comment) => {
     setComments([newComment, ...comments]);
+    onCommentAdded?.();
   };
 
   if (isLoading) {

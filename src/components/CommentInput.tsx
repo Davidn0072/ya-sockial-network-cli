@@ -5,7 +5,7 @@ import type { Comment } from '../services/commentService';
 interface CommentInputProps {
   postId: string;
   onCommentSuccess: (newComment: Comment) => void;
-  inputRef?: React.RefObject<HTMLTextAreaElement>;
+  inputRef?: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export function CommentInput({ postId, onCommentSuccess, inputRef }: CommentInputProps) {
