@@ -103,7 +103,7 @@ export function UserSearchDropdown({
         >
           {userSuggestions.length > 0 ? (
             <>
-              <div className="max-h-48 overflow-y-auto">
+              <div className="max-h-80 overflow-y-auto">
                 {userSuggestions.map((user) => (
                   <div
                     key={user._id}
