@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { userService } from '../services/userService';
 import postService from '../services/postService';
 import { TopNavbar } from '../components/TopNavbar';
+import { PostCard } from '../components/PostCard';
+import CreatePostModal from '../components/CreatePostModal';
 import type { Post } from '../services/postService';
 
 interface UserProfile {
@@ -21,6 +23,8 @@ export function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<{ _id: string; content: string } | null>(null);
 
   useEffect(() => {
     if (userId) {
@@ -70,6 +74,20 @@ export function UserProfilePage() {
     } finally {
       setPostsLoading(false);
     }
+  };
+
+  const handleEditPost = async (post: Post) => {
+    try {
+      const fullPost = await postService.getPostById(post._id);
+      setEditingPost({ _id: fullPost._id, content: fullPost.content });
+      setIsCreatePostOpen(true);
+    } catch (error) {
+      console.error('Error loading post for editing:', error);
+    }
+  };
+
+  const handlePostUpdated = () => {
+    loadUserPosts();
   };
 
   const getInitial = (name: string) => {
@@ -194,42 +212,13 @@ export function UserProfilePage() {
             {posts.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">User Posts</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-6 mb-6">
                   {posts.map((post) => (
-                    <div
+                    <PostCard
                       key={post._id}
-                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100 cursor-pointer"
-                    >
-                      <div className="mb-4">
-                        <p className="text-sm text-gray-500">
-                          {new Date(post.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                      <p className="text-gray-800 text-sm line-clamp-3 mb-4">
-                        {post.content}
-                      </p>
-                      {post.images && post.images.length > 0 && (
-                        <div className="mb-4 h-40 bg-gray-200 rounded-lg overflow-hidden">
-                          <img
-                            src={`${window.location.protocol}//${window.location.hostname}:3000/uploads/${post.images[0]}`}
-                            alt="post"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <div className="flex gap-4 text-sm text-gray-600">
-                        {post.likesStats && (
-                          <span>👍 {post.likesStats.total || 0}</span>
-                        )}
-                        {post.commentsCount !== undefined && (
-                          <span>💬 {post.commentsCount}</span>
-                        )}
-                      </div>
-                    </div>
+                      post={post}
+                      onEditPost={handleEditPost}
+                    />
                   ))}
                 </div>
 
@@ -246,6 +235,16 @@ export function UserProfilePage() {
                 )}
               </div>
             )}
+
+            <CreatePostModal
+              isOpen={isCreatePostOpen}
+              onClose={() => {
+                setIsCreatePostOpen(false);
+                setEditingPost(null);
+              }}
+              onPostCreated={handlePostUpdated}
+              editingPost={editingPost}
+            />
           </>
         ) : null}
       </div>
