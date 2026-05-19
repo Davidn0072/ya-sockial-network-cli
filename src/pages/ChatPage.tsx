@@ -15,6 +15,13 @@ export function ChatPage() {
   const socketRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const focusInput = () => {
+    const inputEl = document.getElementById('chat-input') as HTMLInputElement;
+    if (inputEl) {
+      inputEl.focus();
+    }
+  };
+
   useEffect(() => {
     if (!token) {
       console.log('No token, cannot connect');
@@ -54,12 +61,10 @@ export function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const focusInput = () => {
-    const inputEl = document.getElementById('chat-input') as HTMLInputElement;
-    if (inputEl) {
-      inputEl.focus();
-    }
-  };
+  // Focus on input when entering chat
+  useEffect(() => {
+    focusInput();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
