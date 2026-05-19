@@ -18,6 +18,7 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [focusCommentInput, setFocusCommentInput] = useState(false);
   const [likesStats, setLikesStats] = useState(post.likesStats || { total: 0, like: 0, love: 0, celebrate: 0, insightful: 0 });
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -172,7 +173,11 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
         filesCount={post.filesCount}
         onReactionSuccess={loadLikesStats}
         onViewReactions={() => setIsLikesPopupOpen(true)}
-        onCommentsClick={() => setShowComments(!showComments)}
+        onCommentIconClick={() => {
+          setShowComments(true);
+          setFocusCommentInput(true);
+        }}
+        onCommentCountClick={() => setShowComments(!showComments)}
         onFilesClick={() => setShowFiles(!showFiles)}
         onEditClick={() => onEditPost?.(post)}
         onDeleteClick={handleDeletePost}
@@ -185,7 +190,11 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
 
       {/* Comments Section */}
       {showComments && (
-        <CommentsSection postId={post._id} />
+        <CommentsSection
+          postId={post._id}
+          focusInput={focusCommentInput}
+          onFocusHandled={() => setFocusCommentInput(false)}
+        />
       )}
 
       {/* Likes Popup */}

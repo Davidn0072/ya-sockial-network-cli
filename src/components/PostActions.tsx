@@ -13,7 +13,8 @@ interface PostActionsProps {
   filesCount?: number;
   onReactionSuccess?: () => void;
   onViewReactions?: () => void;
-  onCommentsClick?: () => void;
+  onCommentIconClick?: () => void;
+  onCommentCountClick?: () => void;
   onFilesClick?: () => void;
   onEditClick?: () => void;
   onDeleteClick?: () => void;
@@ -26,7 +27,8 @@ export function PostActions({
   filesCount = 0,
   onReactionSuccess,
   onViewReactions,
-  onCommentsClick,
+  onCommentIconClick,
+  onCommentCountClick,
   onFilesClick,
   onEditClick,
   onDeleteClick,
@@ -49,14 +51,23 @@ export function PostActions({
         </div>
 
         {/* Comments */}
-        <button
-          onClick={onCommentsClick}
-          className="flex items-center gap-2 text-blue-600 transition-all flex-1 justify-center py-2 bg-blue-50 rounded font-bold hover:bg-blue-100 hover:scale-105"
-        >
-          <span className="text-2xl">💬</span>
-          <span className="font-bold text-blue-700">{commentsCount}</span>
-          <span className="text-xs font-bold text-blue-600">Comments</span>
-        </button>
+        <div className="flex items-center gap-1 text-blue-600 transition-all flex-1 justify-center py-2 bg-blue-50 rounded font-bold">
+          <button
+            onClick={onCommentIconClick}
+            className="flex items-center gap-1 text-blue-600 transition-all hover:bg-blue-100 hover:scale-105 rounded px-2 py-1"
+            title="Write a comment"
+          >
+            <span className="text-2xl">💬</span>
+          </button>
+          <button
+            onClick={onCommentCountClick}
+            className="flex items-center gap-1 text-blue-600 transition-all hover:bg-blue-100 hover:scale-105 rounded px-2 py-1"
+            title="View comments"
+          >
+            <span className="font-bold text-blue-700">{commentsCount}</span>
+            <span className="text-xs font-bold text-blue-600">Comments</span>
+          </button>
+        </div>
 
         {/* Files */}
         <button
