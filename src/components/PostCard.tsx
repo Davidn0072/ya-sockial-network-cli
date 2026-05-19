@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Post } from '../services/postService';
 import postService from '../services/postService';
 import { PostActions } from './PostActions';
@@ -7,7 +8,6 @@ import LikesPopup from './LikesPopup';
 import { CommentsSection } from './CommentsSection';
 import { fetchLikesStats } from '../services/likesService';
 import FileUploadModal from './FileUploadModal';
-import { UserProfileModal } from './UserProfileModal';
 
 interface PostCardProps {
   post: Post;
@@ -16,6 +16,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
+  const navigate = useNavigate();
   const [content, setContent] = useState(post.content);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
@@ -26,7 +27,6 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
   const [likesStats, setLikesStats] = useState(post.likesStats || { total: 0, like: 0, love: 0, celebrate: 0, insightful: 0 });
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showUserProfile, setShowUserProfile] = useState(false);
 
   useEffect(() => {
     loadLikesStats();
@@ -116,12 +116,12 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
       {/* Post Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 bg-gradient-to-br ${colors[colorIndex]} rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-80 transition-opacity`} onClick={() => setShowUserProfile(true)}>
+          <div className={`w-12 h-12 bg-gradient-to-br ${colors[colorIndex]} rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-80 transition-opacity`} onClick={() => navigate(`/user/${userIdString}`)}>
             {getInitial(userName)}
           </div>
           <div>
             <button
-              onClick={() => setShowUserProfile(true)}
+              onClick={() => navigate(`/user/${userIdString}`)}
               className="font-bold text-blue-600 hover:underline cursor-pointer"
             >
               {userName}
@@ -239,14 +239,6 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
           setFilesCount(prev => prev + 1);
           setShowFiles(true);
         }}
-      />
-
-      {/* User Profile Modal */}
-      <UserProfileModal
-        isOpen={showUserProfile}
-        userId={userIdString}
-        userName={userName}
-        onClose={() => setShowUserProfile(false)}
       />
     </div>
   );
