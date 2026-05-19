@@ -47,6 +47,7 @@ export function ReplyInput({
     <div className="ml-8 mt-3 p-3 bg-gray-50 rounded border border-gray-200">
       <form onSubmit={handleSubmit} className="space-y-2">
         <textarea
+          autoFocus
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Write a reply..."
