@@ -94,19 +94,19 @@ export function CommentItem({ comment }: CommentItemProps) {
   userName = userName || 'Unknown User';
 
   return (
-    <div className="flex gap-3 py-3 border-b border-gray-100 last:border-b-0">
+    <div className="flex gap-3 py-3 px-3 bg-white rounded-lg mb-2 border border-blue-100 hover:border-blue-300 transition-colors duration-200 hover:shadow-sm">
       {/* Avatar */}
-      <div className={`w-8 h-8 bg-gradient-to-br ${colors[colorIndex]} rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
+      <div className={`w-10 h-10 bg-gradient-to-br ${colors[colorIndex]} rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-sm`}>
         {getInitial(userName)}
       </div>
 
       {/* Comment Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="font-semibold text-sm">{userName}</span>
-          <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="font-bold text-sm text-gray-800">{userName}</span>
+          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{formatDate(comment.createdAt)}</span>
         </div>
-        <p className="text-sm text-gray-700 break-words">{comment.content}</p>
+        <p className="text-sm text-gray-700 break-words leading-relaxed">{comment.content}</p>
 
         {/* Comment Actions */}
         <CommentActions

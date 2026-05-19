@@ -81,7 +81,7 @@ export function ReactionButton({
         ref={buttonRef}
         onClick={handleButtonClick}
         disabled={isLoading}
-        className="text-xl hover:scale-125 transition-transform disabled:opacity-50 cursor-pointer"
+        className="text-2xl hover:scale-125 transition-all duration-300 disabled:opacity-50 cursor-pointer"
         title="React"
       >
         👍
@@ -102,19 +102,32 @@ export function ReactionButton({
             style={{
               top: `${popupPosition.top}px`,
               left: `${popupPosition.left}px`,
-              transform: 'translateX(-50%)'
+              transform: 'translateX(-50%) scale(1)',
+              animation: 'popIn 0.3s ease-out'
             }}
           >
-            <div className="bg-white rounded-lg shadow-2xl p-4 border border-gray-200">
+            <style>{`
+              @keyframes popIn {
+                from {
+                  opacity: 0;
+                  transform: translateX(-50%) scale(0.8);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateX(-50%) scale(1);
+                }
+              }
+            `}</style>
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl p-5 border border-gray-150">
               {/* Emojis Row */}
-              <div className="flex gap-4 pb-3 border-b border-gray-200 justify-center">
+              <div className="flex gap-3 pb-4 border-b border-gray-200 justify-center">
                 {REACTION_TYPES.map((reaction) => (
                   <button
                     key={reaction.type}
                     onClick={() => handleReactionClick(reaction.type)}
                     disabled={isLoading}
                     title={reaction.name}
-                    className="text-3xl hover:scale-150 transition-transform disabled:opacity-50 cursor-pointer"
+                    className="text-4xl hover:scale-150 transition-transform duration-200 disabled:opacity-50 cursor-pointer transform hover:-translate-y-1"
                   >
                     {reaction.label}
                   </button>
@@ -128,7 +141,7 @@ export function ReactionButton({
                     onViewReactions();
                     setIsOpen(false);
                   }}
-                  className="w-full text-center px-3 py-2 text-sm text-blue-600 hover:bg-gray-50 transition-colors font-medium"
+                  className="w-full text-center px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 transition-colors font-semibold rounded-lg mt-2"
                 >
                   👥 Who Reacted
                 </button>

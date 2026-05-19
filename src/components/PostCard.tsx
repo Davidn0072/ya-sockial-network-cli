@@ -110,7 +110,7 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
   const userName = typeof post.userId === 'object' ? post.userId.name : 'Unknown User';
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-100">
       {/* Post Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">

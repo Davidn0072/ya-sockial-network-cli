@@ -31,7 +31,7 @@ export function CommentActions({
   return (
     <div className="flex items-center gap-2 mt-3 flex-wrap">
       {/* Reaction Button */}
-      <div className="flex items-center gap-2 bg-purple-50 px-3 py-1 rounded font-bold text-purple-600 hover:bg-purple-100 transition-all hover:scale-105">
+      <div className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm border border-purple-200">
         <ReactionButton
           targetId={commentId}
           targetType="comment"
@@ -47,15 +47,18 @@ export function CommentActions({
       </div>
 
       {/* Reply Button */}
-      <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded font-bold text-green-600 hover:bg-green-100 transition-all hover:scale-105 cursor-pointer" onClick={onReply}>
+      <button
+        onClick={onReply}
+        className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-green-100 px-3 py-1.5 rounded-full font-bold text-green-600 hover:from-green-100 hover:to-green-200 transition-all duration-200 hover:shadow-sm border border-green-200 cursor-pointer"
+      >
         <span className="text-lg">💬</span>
         <span className="text-xs font-bold text-green-600">Reply</span>
-      </div>
+      </button>
 
       {/* Show Replies Link */}
       <button
         onClick={onToggleReplies}
-        className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded hover:bg-blue-100 transition-all hover:scale-105 flex items-center gap-1"
+        className="text-xs font-bold text-blue-600 bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-1.5 rounded-full hover:from-blue-100 hover:to-blue-200 transition-all duration-200 hover:shadow-sm border border-blue-200 flex items-center gap-1"
       >
         <span className="text-lg">{repliesIsVisible ? '👁️' : '👁️'}</span> {repliesIsVisible ? 'Hide Replies' : 'Show Replies'}
       </button>
