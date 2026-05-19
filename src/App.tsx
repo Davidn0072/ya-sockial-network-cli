@@ -4,6 +4,7 @@ import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { EditUserProfilePage } from './pages/EditUserProfilePage';
+import { ViewProfilePage } from './pages/ViewProfilePage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -18,6 +19,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/view"
+              element={
+                <ProtectedRoute>
+                  <ViewProfilePage />
                 </ProtectedRoute>
               }
             />

@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { UserProfileViewModal } from './UserProfileViewModal';
 
 interface TopNavbarProps {
   activeTab: 'feed' | 'profile';
@@ -11,7 +9,6 @@ interface TopNavbarProps {
 export function TopNavbar({ activeTab, onTabChange }: TopNavbarProps) {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -19,52 +16,42 @@ export function TopNavbar({ activeTab, onTabChange }: TopNavbarProps) {
   };
 
   const handleProfileClick = () => {
-    setIsProfileModalOpen(true);
+    navigate('/profile/view');
   };
 
   return (
-    <>
-      <nav className="bg-blue-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="text-2xl font-bold">SockNetwork</div>
-            <button
-              onClick={handleProfileClick}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
-            >
-              👤 {user?.name || 'Profile'}
-            </button>
-          </div>
-
-          <div className="flex items-center gap-8">
-            <button
-              onClick={() => onTabChange('feed')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                activeTab === 'feed'
-                  ? 'bg-white text-blue-600 font-bold'
-                  : 'hover:bg-blue-500'
-              }`}
-            >
-              🏠 Feed
-            </button>
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-600 transition"
-            >
-              🚪 Logout
-            </button>
-          </div>
+    <nav className="bg-blue-600 text-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <div className="text-2xl font-bold">SockNetwork</div>
+          <button
+            onClick={handleProfileClick}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+          >
+            👤 {user?.name || 'Profile'}
+          </button>
         </div>
-      </nav>
 
-      {user?.id && (
-        <UserProfileViewModal
-          isOpen={isProfileModalOpen}
-          onClose={() => setIsProfileModalOpen(false)}
-          userId={user.id}
-        />
-      )}
-    </>
+        <div className="flex items-center gap-8">
+          <button
+            onClick={() => onTabChange('feed')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+              activeTab === 'feed'
+                ? 'bg-white text-blue-600 font-bold'
+                : 'hover:bg-blue-500'
+            }`}
+          >
+            🏠 Feed
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-600 transition"
+          >
+            🚪 Logout
+          </button>
+        </div>
+      </div>
+    </nav>
   );
 }
