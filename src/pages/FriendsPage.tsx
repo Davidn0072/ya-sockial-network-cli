@@ -26,6 +26,7 @@ export function FriendsPage() {
   const navigate = useNavigate();
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
+  const [rejectedFriends, setRejectedFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
@@ -40,12 +41,14 @@ export function FriendsPage() {
   const loadFriendsData = async () => {
     setLoading(true);
     try {
-      const [requestsData, friendsData] = await Promise.all([
+      const [requestsData, friendsData, rejectedData] = await Promise.all([
         friendService.getFriendRequests(),
-        friendService.getFriends()
+        friendService.getFriends(),
+        friendService.getRejectedFriends()
       ]);
       setFriendRequests(Array.isArray(requestsData) ? requestsData : requestsData.requests || []);
       setFriends(Array.isArray(friendsData) ? friendsData : friendsData.friends || []);
+      setRejectedFriends(Array.isArray(rejectedData) ? rejectedData : rejectedData.friends || []);
     } catch (err) {
       console.error('Failed to load friends data:', err);
     } finally {
@@ -254,7 +257,7 @@ export function FriendsPage() {
             </div>
 
             {/* Friends List Section */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden p-8">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden p-8 mb-8">
               <h2 className="text-2xl font-bold mb-6 text-gray-800">👫 My Friends ({friends.length})</h2>
               {friends.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No friends yet</p>
@@ -275,6 +278,28 @@ export function FriendsPage() {
                       >
                         💔 Unfriend
                       </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Rejected Friends Section */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden p-8">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">❌ Rejected Friends ({rejectedFriends.length})</h2>
+              {rejectedFriends.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No rejected friends</p>
+              ) : (
+                <div className="space-y-3">
+                  {rejectedFriends.map((friend) => (
+                    <div
+                      key={friend._id}
+                      className="flex items-center justify-between bg-red-50 p-4 rounded-lg border border-red-200"
+                    >
+                      <div>
+                        <p className="font-semibold text-gray-800">{friend.name}</p>
+                        <p className="text-sm text-gray-600">{friend.email}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -118,4 +118,22 @@ export const friendService = {
 
     return response.json();
   },
+
+  async getRejectedFriends(): Promise<any[]> {
+    const token = authService.getToken();
+
+    const response = await fetch(`${API_URL}/friends/rejected`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch rejected friends');
+    }
+
+    return response.json();
+  },
 };
