@@ -5,6 +5,7 @@ import LikesPopup from './LikesPopup';
 import { NestedRepliesList } from './NestedRepliesList';
 import { ReplyInput } from './ReplyInput';
 import { useNestedComments } from '../hooks/useNestedComments';
+import { useAuth } from '../hooks/useAuth';
 import { fetchLikesStats } from '../services/likesService';
 
 interface CommentItemProps {
@@ -12,6 +13,8 @@ interface CommentItemProps {
 }
 
 export function CommentItem({ comment }: CommentItemProps) {
+  console.log('CommentItem rendering with comment:', comment);
+  const { user: currentUser } = useAuth();
   const nestedComments = useNestedComments(comment.postId, comment._id);
   const [likesStats, setLikesStats] = useState(comment.likesCount ? { total: comment.likesCount } : { total: 0 });
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
@@ -59,7 +62,10 @@ export function CommentItem({ comment }: CommentItemProps) {
     'from-orange-400 to-orange-600',
   ];
 
-  const userIdString = comment.userId?._id || '';
+  let userIdString = comment.userId?._id || '';
+  if (userIdString === "") {
+    userIdString = currentUser?.id || '';
+  }
 
   const getColorIndex = (id: string) => {
     let hash = 0;
@@ -69,9 +75,23 @@ export function CommentItem({ comment }: CommentItemProps) {
     }
     return Math.abs(hash) % colors.length;
   };
+  //authService.getUser().id
+  console.log('AuthContextType (useAuth):', { currentUser });
+
 
   const colorIndex = userIdString ? getColorIndex(userIdString) : 0;
-  const userName = comment.userId?.name || 'Unknown User';
+
+  // אם אין username בcomment, בדוק אם זה ה-current user
+  let userName = comment.userId?.name;
+  if (!userName && currentUser) {
+    const currentUserId = typeof currentUser === 'object' ? currentUser.id : null;
+    const currentUserName = typeof currentUser === 'object' ? currentUser.name : currentUser;
+
+    if (currentUserId && userIdString === currentUserId) {
+      userName = currentUserName;
+    }
+  }
+  userName = userName || 'Unknown User';
 
   return (
     <div className="flex gap-3 py-3 border-b border-gray-100 last:border-b-0">

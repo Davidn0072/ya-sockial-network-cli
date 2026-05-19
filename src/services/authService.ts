@@ -17,7 +17,8 @@ interface LoginData {
 interface AuthResponse {
   success: boolean;
   message: string;
-  user?: { id: string; name: string; email: string };
+  userId?: string;
+  user?: string;
   token?: string;
 }
 

@@ -4,7 +4,7 @@ import { authService } from '../services/authService';
 interface User {
   id: string;
   name: string;
-  email: string;
+  email?: string;
 }
 
 interface AuthContextType {
@@ -37,12 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const response = await authService.login({ email, password });
+    console.log('Login response.user:', response.user);
 
-    if (response.token && response.user) {
+    if (response.token && response.user && response.userId) {
+      const userObject = { id: response.userId, name: response.user };
       authService.setToken(response.token);
-      authService.setUser(response.user);
+      authService.setUser(userObject);
       setToken(response.token);
-      setUser(response.user);
+      setUser(userObject);
     }
   };
 

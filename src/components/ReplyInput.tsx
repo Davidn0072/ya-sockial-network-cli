@@ -33,6 +33,7 @@ export function ReplyInput({
 
     try {
       const newReply = await commentService.addReply(postId, parentCommentId, content.trim());
+      console.log('New Reply from API:', newReply);
       setContent('');
       onReplySuccess(newReply);
     } catch (err) {
