@@ -82,6 +82,28 @@ const fileService = {
 
     return response.json();
   },
+
+  async uploadFile(postId: string, file: File): Promise<FileItem> {
+    const token = authService.getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_URL}/files/${postId}`, {
+      method: 'POST',
+      headers: {
+        'x-access-token': token || '',
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Upload failed (${response.status})`);
+    }
+
+    const data = await response.json();
+    return data.result || data;
+  },
 };
 
 export default fileService;

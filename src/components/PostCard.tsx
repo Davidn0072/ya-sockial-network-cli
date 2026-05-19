@@ -6,6 +6,7 @@ import { FilesGrid } from './FilesGrid';
 import LikesPopup from './LikesPopup';
 import { CommentsSection } from './CommentsSection';
 import { fetchLikesStats } from '../services/likesService';
+import FileUploadModal from './FileUploadModal';
 
 interface PostCardProps {
   post: Post;
@@ -23,7 +24,7 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
   const [filesCount, setFilesCount] = useState(post.filesCount || 0);
   const [likesStats, setLikesStats] = useState(post.likesStats || { total: 0, like: 0, love: 0, celebrate: 0, insightful: 0 });
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   useEffect(() => {
     loadLikesStats();
@@ -58,15 +59,12 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
   };
 
   const handleDeletePost = async () => {
-    setIsDeleting(true);
     try {
       await postService.deletePost(post._id);
       onDeletePost?.(post._id);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete post';
       alert(errorMessage);
-    } finally {
-      setIsDeleting(false);
     }
   };
   const formatDate = (dateString: string) => {
@@ -180,6 +178,7 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
           setFocusCommentInput(true);
         }}
         onCommentCountClick={() => setShowComments(!showComments)}
+        onFileIconClick={() => setShowUploadModal(true)}
         onFilesClick={() => setShowFiles(!showFiles)}
         onEditClick={() => onEditPost?.(post)}
         onDeleteClick={handleDeletePost}
@@ -211,6 +210,17 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
         targetId={post._id}
         targetType="post"
         onClose={() => setIsLikesPopupOpen(false)}
+      />
+
+      {/* File Upload Modal */}
+      <FileUploadModal
+        isOpen={showUploadModal}
+        postId={post._id}
+        onClose={() => setShowUploadModal(false)}
+        onFileUploaded={() => {
+          setFilesCount(prev => prev + 1);
+          setShowFiles(true);
+        }}
       />
     </div>
   );

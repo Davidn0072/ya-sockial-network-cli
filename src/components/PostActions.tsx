@@ -15,6 +15,7 @@ interface PostActionsProps {
   onViewReactions?: () => void;
   onCommentIconClick?: () => void;
   onCommentCountClick?: () => void;
+  onFileIconClick?: () => void;
   onFilesClick?: () => void;
   onEditClick?: () => void;
   onDeleteClick?: () => void;
@@ -29,6 +30,7 @@ export function PostActions({
   onViewReactions,
   onCommentIconClick,
   onCommentCountClick,
+  onFileIconClick,
   onFilesClick,
   onEditClick,
   onDeleteClick,
@@ -70,14 +72,22 @@ export function PostActions({
         </div>
 
         {/* Files */}
-        <button
-          onClick={onFilesClick}
-          className="flex items-center gap-2 text-green-600 transition-all flex-1 justify-center py-2 bg-green-50 rounded font-bold hover:bg-green-100 hover:scale-105"
-        >
-          <span className="text-2xl">📎</span>
-          <span className="font-bold text-green-700">{filesCount}</span>
-          <span className="text-xs font-bold text-green-600">Files</span>
-        </button>
+        <div className="flex items-center gap-2 text-green-600 flex-1 justify-center py-2 bg-green-50 rounded font-bold">
+          <button
+            onClick={onFileIconClick}
+            className="flex items-center text-green-600 transition-all hover:scale-125 rounded p-1"
+            title="Upload file"
+          >
+            <span className="text-2xl">📎</span>
+          </button>
+          <button
+            onClick={onFilesClick}
+            className="flex items-center gap-2 text-green-600 transition-all hover:bg-green-100 hover:scale-105 rounded px-2 py-1"
+          >
+            <span className="font-bold text-green-700">{filesCount}</span>
+            <span className="text-xs font-bold text-green-600">Files</span>
+          </button>
+        </div>
 
         {/* Edit */}
         <button
