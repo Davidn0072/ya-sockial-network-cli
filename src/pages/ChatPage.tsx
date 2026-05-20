@@ -282,6 +282,9 @@ export function ChatPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="flex-1 flex flex-col border-b-2 border-gray-200 bg-white">
+        <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
+          <p className="text-sm text-gray-600">👤 Logged in as: <span className="font-semibold text-gray-800">{user?.name}</span></p>
+        </div>
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">💬 General Chat</h2>
           <p className={`text-sm mt-1 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
