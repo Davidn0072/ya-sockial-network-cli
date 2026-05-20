@@ -6,7 +6,6 @@ import { friendService } from '../services/friendService';
 import { AuthContext } from '../contexts/AuthContext';
 import { TopNavbar } from '../components/TopNavbar';
 import { PostCard } from '../components/PostCard';
-import { PostDetailModal } from '../components/PostDetailModal';
 import CreatePostModal from '../components/CreatePostModal';
 import type { Post } from '../services/postService';
 
@@ -30,7 +29,6 @@ export function UserProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<{ _id: string; content: string } | null>(null);
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [friendRequestLoading, setFriendRequestLoading] = useState(false);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
   const [friendRequestError, setFriendRequestError] = useState<string | null>(null);
@@ -261,7 +259,7 @@ export function UserProfilePage() {
                   {posts.map((post) => (
                     <div
                       key={post._id}
-                      onClick={() => setSelectedPostId(post._id)}
+                      onClick={() => navigate(`/post/${post._id}`)}
                       className="cursor-pointer transition-transform duration-300 hover:-translate-y-2"
                     >
                       <PostCard
@@ -296,14 +294,6 @@ export function UserProfilePage() {
               onPostCreated={handlePostUpdated}
               editingPost={editingPost}
             />
-
-            {selectedPostId && (
-              <PostDetailModal
-                postId={selectedPostId}
-                isOpen={!!selectedPostId}
-                onClose={() => setSelectedPostId(null)}
-              />
-            )}
           </>
         ) : null}
       </div>

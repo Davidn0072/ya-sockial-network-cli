@@ -213,6 +213,31 @@ const postService = {
       throw new Error(errorMessage);
     }
   },
+
+  async getPostWithDetails(postId: string, filesLimit: number = 4, commentsLimit: number = 4): Promise<{
+    post: Post;
+    comments: { comments: any[]; nextCursor: string | null };
+    files: { files: any[]; nextCursor: string | null };
+  }> {
+    const token = authService.getToken();
+
+    const response = await fetch(
+      `${API_URL}/posts/postWithDetails/${postId}?filesLimit=${filesLimit}&commentsLimit=${commentsLimit}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token || '',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch post details');
+    }
+
+    return response.json();
+  },
 };
 
 export default postService;

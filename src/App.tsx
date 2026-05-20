@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { UserProfilePage } from './pages/UserProfilePage';
+import { PostDetailPage } from './pages/PostDetailPage';
 import { EditUserProfilePage } from './pages/EditUserProfilePage';
 import { ViewProfilePage } from './pages/ViewProfilePage';
 import { FriendsPage } from './pages/FriendsPage';
@@ -61,6 +62,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <UserProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/post/:postId"
+              element={
+                <ProtectedRoute>
+                  <PostDetailPage />
                 </ProtectedRoute>
               }
             />
