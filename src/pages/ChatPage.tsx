@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';
 
@@ -14,19 +15,13 @@ interface PrivateChat {
   messages: Message[];
   socket: any;
   isConnected: boolean;
+  messageInput: string;
 }
 
 interface User {
   id: string;
   name: string;
   email?: string;
-}
-
-interface PrivateChatViewProps {
-  chat: PrivateChat;
-  user: User | null;
-  onSubmit: (e: React.FormEvent, chat: PrivateChat, input: string, setInput: (val: string) => void) => void;
-  inputRef: React.MutableRefObject<{ [userId: string]: HTMLInputElement | null }>;
 }
 
 interface SearchUserModalProps {
@@ -72,8 +67,15 @@ function SearchUserModal({ onUserSelect }: SearchUserModalProps) {
   );
 }
 
-function PrivateChatView({ chat, user, onSubmit, inputRef }: PrivateChatViewProps) {
-  const [messageInput, setMessageInput] = useState('');
+interface PrivateChatViewProps {
+  chat: PrivateChat;
+  user: User | null;
+  onMessageChange: (userId: string, message: string) => void;
+  onSubmit: (e: React.FormEvent, chat: PrivateChat) => void;
+  inputRef: React.MutableRefObject<{ [userId: string]: HTMLInputElement | null }>;
+}
+
+function PrivateChatView({ chat, user, onMessageChange, onSubmit, inputRef }: PrivateChatViewProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -111,14 +113,14 @@ function PrivateChatView({ chat, user, onSubmit, inputRef }: PrivateChatViewProp
       </div>
 
       <div className="border-t border-gray-200 bg-white p-4">
-        <form onSubmit={(e) => onSubmit(e, chat, messageInput, setMessageInput)} className="flex gap-2">
+        <form onSubmit={(e) => onSubmit(e, chat)} className="flex gap-2">
           <input
             ref={(el) => {
               if (el) inputRef.current[chat.userId] = el;
             }}
             type="text"
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
+            value={chat.messageInput}
+            onChange={(e) => onMessageChange(chat.userId, e.target.value)}
             placeholder="Type a message..."
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
             disabled={!chat.isConnected}
@@ -137,6 +139,7 @@ function PrivateChatView({ chat, user, onSubmit, inputRef }: PrivateChatViewProp
 }
 
 export function ChatPage() {
+  const navigate = useNavigate();
   const { user, token } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -173,7 +176,8 @@ export function ChatPage() {
       userName: selectedUser.name,
       messages: [],
       socket: null,
-      isConnected: false
+      isConnected: false,
+      messageInput: ''
     };
 
     setPrivateChats([...privateChats, newChat]);
@@ -303,33 +307,54 @@ export function ChatPage() {
     }
   };
 
-  const handlePrivateSubmit = (e: React.FormEvent, chat: PrivateChat, messageInput: string, setMessageInput: (val: string) => void) => {
+  const handleMessageChange = (userId: string, message: string) => {
+    setPrivateChats(prev =>
+      prev.map(c =>
+        c.userId === userId ? { ...c, messageInput: message } : c
+      )
+    );
+  };
+
+  const handlePrivateSubmit = (e: React.FormEvent, chat: PrivateChat) => {
     e.preventDefault();
     const socket = privateChatSocketsRef.current[chat.userId];
-    console.log('handlePrivateSubmit:', { messageInput, hasSocket: !!socket, socketId: socket?.id });
+    console.log('handlePrivateSubmit:', { messageInput: chat.messageInput, hasSocket: !!socket, socketId: socket?.id });
 
-    if (messageInput.trim() && socket) {
-      console.log('Sending private message:', { targetUserId: chat.userId, msg: messageInput });
+    if (chat.messageInput.trim() && socket) {
+      console.log('Sending private message:', { targetUserId: chat.userId, msg: chat.messageInput });
       socket.emit('private message', {
         targetUserId: chat.userId,
         targetUserName: chat.userName,
-        msg: messageInput
+        msg: chat.messageInput
       });
-      setMessageInput('');
+      setPrivateChats(prev =>
+        prev.map(c =>
+          c.userId === chat.userId ? { ...c, messageInput: '' } : c
+        )
+      );
       requestAnimationFrame(() => {
         privateInputRefs.current[chat.userId]?.focus();
       });
     } else {
-      console.warn('Cannot send:', { messageInput: messageInput.trim(), hasSocket: !!socket });
+      console.warn('Cannot send:', { messageInput: chat.messageInput.trim(), hasSocket: !!socket });
     }
   };
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+      <div className="px-6 py-3 border-b border-gray-200 bg-white flex items-center justify-between">
+        <button
+          onClick={() => navigate('/')}
+          className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition"
+          title="Back to home"
+        >
+          ← Home
+        </button>
+        <p className="text-sm text-gray-600">👤 Logged in as: <span className="font-semibold text-gray-800">{user?.name}</span></p>
+      </div>
+
       <div className="flex-1 flex flex-col border-b-2 border-gray-200 bg-white">
-        <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
-          <p className="text-sm text-gray-600">👤 Logged in as: <span className="font-semibold text-gray-800">{user?.name}</span></p>
-        </div>
+        <div className="px-6 py-3 border-b border-gray-100 bg-gray-50"></div>
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">💬 General Chat</h2>
           <p className={`text-sm mt-1 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
@@ -436,6 +461,7 @@ export function ChatPage() {
               <PrivateChatView
                 chat={privateChats.find(c => c.userId === activePrivateTab)!}
                 user={user}
+                onMessageChange={handleMessageChange}
                 onSubmit={handlePrivateSubmit}
                 inputRef={privateInputRefs}
               />
