@@ -10,7 +10,6 @@ import postService from '../services/postService';
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<'feed' | 'profile'>('feed');
   const [searchText, setSearchText] = useState('');
-  const [searchAuthor, setSearchAuthor] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isAIMode, setIsAIMode] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState<Post[]>([]);
