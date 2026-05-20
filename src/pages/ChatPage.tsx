@@ -29,6 +29,49 @@ interface PrivateChatViewProps {
   inputRef: React.MutableRefObject<{ [userId: string]: HTMLInputElement | null }>;
 }
 
+interface SearchUserModalProps {
+  onUserSelect: (user: any) => void;
+}
+
+function SearchUserModal({ onUserSelect }: SearchUserModalProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="ml-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white hover:text-gray-100 rounded-lg shadow-lg transition border border-emerald-500 hover:shadow-xl flex items-center gap-2 whitespace-nowrap"
+        title="Add new private chat"
+      >
+        <span className="text-lg">💬</span>
+        <span className="text-sm font-semibold">New Chat</span>
+      </button>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-30 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-2xl p-6 w-96">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Start New Chat</h3>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+            <UserSearchDropdown
+              onUserSelect={(user) => {
+                onUserSelect(user);
+                setIsOpen(false);
+              }}
+              placeholder="👤 Search users..."
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function PrivateChatView({ chat, user, onSubmit, inputRef }: PrivateChatViewProps) {
   const [messageInput, setMessageInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -348,7 +391,7 @@ export function ChatPage() {
           </div>
         ) : (
           <>
-            <div className="flex gap-0 border-b border-gray-300 bg-white overflow-x-auto">
+            <div className="flex gap-0 border-b border-gray-300 bg-white overflow-x-auto items-center relative">
               {privateChats.map((chat) => (
                 <div
                   key={chat.userId}
@@ -379,6 +422,8 @@ export function ChatPage() {
                   </button>
                 </div>
               ))}
+              <div className="flex-1"></div>
+              <SearchUserModal onUserSelect={handlePrivateUserSelect} />
             </div>
 
             {activePrivateTab && (
