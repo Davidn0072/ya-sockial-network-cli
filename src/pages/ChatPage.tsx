@@ -148,6 +148,7 @@ export function ChatPage() {
   const [privateChats, setPrivateChats] = useState<PrivateChat[]>([]);
   const [activePrivateTab, setActivePrivateTab] = useState<string | null>(null);
   const privateInputRefs = useRef<{ [userId: string]: HTMLInputElement | null }>({});
+  const privateChatSocketsRef = useRef<{ [userId: string]: any }>({});
 
   const focusInput = () => {
     requestAnimationFrame(() => {
@@ -180,9 +181,10 @@ export function ChatPage() {
   };
 
   const handleClosePrivateChat = (userId: string) => {
-    const chat = privateChats.find(c => c.userId === userId);
-    if (chat?.socket) {
-      chat.socket.disconnect();
+    const socket = privateChatSocketsRef.current[userId];
+    if (socket) {
+      socket.disconnect();
+      delete privateChatSocketsRef.current[userId];
     }
     setPrivateChats(privateChats.filter(c => c.userId !== userId));
     if (activePrivateTab === userId) {
@@ -196,7 +198,6 @@ export function ChatPage() {
       return;
     }
 
-    // יצירת חיבור Socket.IO
     const socket = (window as any).io('http://localhost:3000/chat', {
       auth: { token }
     });
@@ -239,7 +240,8 @@ export function ChatPage() {
     if (!token) return;
 
     privateChats.forEach((chat) => {
-      if (chat.socket) return; // Already connected
+      // Skip if already connected
+      if (privateChatSocketsRef.current[chat.userId]) return;
 
       const socket = (window as any).io('http://localhost:3000/chat', {
         auth: { token }
@@ -247,6 +249,8 @@ export function ChatPage() {
 
       const userId = chat.userId;
       const userName = chat.userName;
+
+      console.log('Creating socket for private chat:', userId);
 
       socket.on('connect', () => {
         console.log(`Connected to private chat with ${userName}`);
@@ -257,13 +261,13 @@ export function ChatPage() {
 
         setPrivateChats(prev =>
           prev.map(c =>
-            c.userId === userId ? { ...c, socket, isConnected: true } : c
+            c.userId === userId ? { ...c, isConnected: true } : c
           )
         );
       });
 
       socket.on('private message', (data: Message) => {
-        console.log('private message:', data);
+        console.log('private message received:', data);
         setPrivateChats(prev =>
           prev.map(c =>
             c.userId === userId
@@ -282,21 +286,13 @@ export function ChatPage() {
         );
       });
 
-      setPrivateChats(prev =>
-        prev.map(c =>
-          c.userId === userId ? { ...c, socket } : c
-        )
-      );
-    });
-
-    return () => {
-      privateChats.forEach(chat => {
-        if (chat.socket) {
-          chat.socket.disconnect();
-        }
+      socket.on('error', (error: any) => {
+        console.error(`Socket error for ${userName}:`, error);
       });
-    };
-  }, [privateChats, token]);
+
+      privateChatSocketsRef.current[userId] = socket;
+    });
+  }, [privateChats.map(c => c.userId).join(','), token]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -309,8 +305,12 @@ export function ChatPage() {
 
   const handlePrivateSubmit = (e: React.FormEvent, chat: PrivateChat, messageInput: string, setMessageInput: (val: string) => void) => {
     e.preventDefault();
-    if (messageInput.trim() && chat.socket) {
-      chat.socket.emit('private message', {
+    const socket = privateChatSocketsRef.current[chat.userId];
+    console.log('handlePrivateSubmit:', { messageInput, hasSocket: !!socket, socketId: socket?.id });
+
+    if (messageInput.trim() && socket) {
+      console.log('Sending private message:', { targetUserId: chat.userId, msg: messageInput });
+      socket.emit('private message', {
         targetUserId: chat.userId,
         targetUserName: chat.userName,
         msg: messageInput
@@ -319,6 +319,8 @@ export function ChatPage() {
       requestAnimationFrame(() => {
         privateInputRefs.current[chat.userId]?.focus();
       });
+    } else {
+      console.warn('Cannot send:', { messageInput: messageInput.trim(), hasSocket: !!socket });
     }
   };
 
