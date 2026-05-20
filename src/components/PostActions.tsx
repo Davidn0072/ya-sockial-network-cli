@@ -44,7 +44,7 @@ export function PostActions({
         {/* Reactions */}
         <button
           onClick={onViewReactions}
-          className={`${styles.actionButton} ${styles.actionButtonPurple} flex-1`}
+          className={`${styles.actionButton} ${styles.actionButtonPurple}`}
           title="View reactions"
         >
           <div className="flex items-center justify-center gap-2">
