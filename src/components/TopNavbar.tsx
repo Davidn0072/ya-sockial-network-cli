@@ -34,6 +34,12 @@ export function TopNavbar({ activeTab, onTabChange }: TopNavbarProps) {
           >
             👤 {user?.name || 'Profile'}
           </button>
+          <button
+            onClick={handleChatClick}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+          >
+            💬 Chat
+          </button>
         </div>
 
         <div className="flex items-center gap-8">
@@ -46,13 +52,6 @@ export function TopNavbar({ activeTab, onTabChange }: TopNavbarProps) {
             }`}
           >
             🏠 Feed
-          </button>
-
-          <button
-            onClick={handleChatClick}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-500 transition"
-          >
-            💬 Chat
           </button>
 
           <button
