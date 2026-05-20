@@ -14,12 +14,12 @@ export function ChatPage() {
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const focusInput = () => {
-    const inputEl = document.getElementById('chat-input') as HTMLInputElement;
-    if (inputEl) {
-      inputEl.focus();
-    }
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
   };
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export function ChatPage() {
         <div className="border-t border-gray-200 bg-white p-4">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input
-              id="chat-input"
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
