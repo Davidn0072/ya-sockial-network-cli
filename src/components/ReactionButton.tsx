@@ -100,7 +100,7 @@ export function ReactionButton({
         ref={buttonRef}
         onClick={handleButtonClick}
         disabled={isLoading}
-        className={className || "text-2xl hover:scale-125 transition-all duration-300 disabled:opacity-50 cursor-pointer"}
+        className={`text-4xl hover:scale-125 transition-all duration-300 disabled:opacity-50 cursor-pointer ${className || ''}`}
         title="React"
       >
         👍
