@@ -113,7 +113,7 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
   const userName = typeof post.userId === 'object' ? post.userId.name : 'Unknown User';
 
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-100 flex flex-col h-full">
+    <div className={`bg-white rounded-lg p-6 flex flex-col h-full ${hideActions ? 'shadow-sm border border-gray-200' : 'shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100'}`}>
       {/* Post Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -138,7 +138,7 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
       </div>
 
       {/* Post Content */}
-      <div className="text-gray-800 mb-4">
+      <div className={`mb-4 ${hideActions ? 'bg-gray-50 p-3 rounded text-gray-800' : 'text-gray-800'}`}>
         {post.hasMore && !isExpanded ? (
           <p>
             {content}

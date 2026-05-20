@@ -6,6 +6,7 @@ import { friendService } from '../services/friendService';
 import { AuthContext } from '../contexts/AuthContext';
 import { TopNavbar } from '../components/TopNavbar';
 import { PostCard } from '../components/PostCard';
+import { PostDetailModal } from '../components/PostDetailModal';
 import CreatePostModal from '../components/CreatePostModal';
 import type { Post } from '../services/postService';
 
@@ -29,6 +30,7 @@ export function UserProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<{ _id: string; content: string } | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [friendRequestLoading, setFriendRequestLoading] = useState(false);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
   const [friendRequestError, setFriendRequestError] = useState<string | null>(null);
@@ -257,12 +259,17 @@ export function UserProfilePage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">User Posts</h2>
                 <div className="grid grid-cols-4 gap-4 mb-6">
                   {posts.map((post) => (
-                    <PostCard
+                    <div
                       key={post._id}
-                      post={post}
-                      onEditPost={handleEditPost}
-                      hideActions={true}
-                    />
+                      onClick={() => setSelectedPostId(post._id)}
+                      className="cursor-pointer transition-transform duration-300 hover:-translate-y-2"
+                    >
+                      <PostCard
+                        post={post}
+                        onEditPost={handleEditPost}
+                        hideActions={true}
+                      />
+                    </div>
                   ))}
                 </div>
 
@@ -289,6 +296,14 @@ export function UserProfilePage() {
               onPostCreated={handlePostUpdated}
               editingPost={editingPost}
             />
+
+            {selectedPostId && (
+              <PostDetailModal
+                postId={selectedPostId}
+                isOpen={!!selectedPostId}
+                onClose={() => setSelectedPostId(null)}
+              />
+            )}
           </>
         ) : null}
       </div>
