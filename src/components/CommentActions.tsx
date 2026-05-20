@@ -30,27 +30,26 @@ export function CommentActions({
 
   return (
     <div className="flex items-center gap-2 mt-3 flex-wrap">
-      {/* Reaction Button */}
-      <div className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm border border-purple-200">
+      {/* Reaction Buttons */}
+      <div className="flex gap-2">
         {/* Thumb Button - opens reactions list */}
-        <ReactionButton
-          targetId={commentId}
-          targetType="comment"
-          onReactionSuccess={onReactionSuccess}
-          action="reactions-list"
-        />
+        <button className="bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm border border-purple-200 cursor-pointer" title="Add reaction">
+          <ReactionButton
+            targetId={commentId}
+            targetType="comment"
+            onReactionSuccess={onReactionSuccess}
+            action="reactions-list"
+          />
+        </button>
         {totalReactions > 0 && (
-          <>
-            {/* Count - opens reactions popup */}
-            <button
-              onClick={onViewReactions}
-              className="flex items-center gap-2 cursor-pointer"
-              title="View reactions"
-            >
-              <span className="text-xs font-bold text-purple-700">{totalReactions}</span>
-              <span className="text-xs font-bold text-purple-600">Reactions</span>
-            </button>
-          </>
+          <button
+            onClick={onViewReactions}
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm border border-purple-200 cursor-pointer"
+            title="View reactions"
+          >
+            <span className="text-xs font-bold text-purple-700">{totalReactions}</span>
+            <span className="text-xs font-bold text-purple-600">Reactions</span>
+          </button>
         )}
       </div>
 

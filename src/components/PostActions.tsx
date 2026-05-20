@@ -42,25 +42,30 @@ export function PostActions({
     <div className="border-t border-gray-200 pt-6 mt-6">
       <div className="flex gap-3 text-sm">
         {/* Reactions */}
-        <div className={`${styles.actionButton} ${styles.actionButtonPurple}`}>
-          <div className="flex items-center justify-center gap-2">
-            {/* Thumb Button - opens reactions list */}
+        <div className="flex-1 flex gap-2">
+          {/* Thumb Button - opens reactions list */}
+          <button
+            className={`${styles.actionButton} ${styles.actionButtonPurple} flex-1`}
+            title="Add reaction"
+          >
             <ReactionButton
               targetId={postId}
               targetType="post"
               onReactionSuccess={onReactionSuccess}
               action="reactions-list"
             />
-            {/* Count - opens reactions popup */}
-            <button
-              onClick={onViewReactions}
-              className="flex flex-col items-center"
-              title="View reactions"
-            >
+          </button>
+          {/* Count - opens reactions popup */}
+          <button
+            onClick={onViewReactions}
+            className={`${styles.actionButton} ${styles.actionButtonPurple} flex-1`}
+            title="View reactions"
+          >
+            <div className="flex flex-col items-center">
               <span className="font-bold text-lg">{totalReactions}</span>
               <span className="text-xs">Reactions</span>
-            </button>
-          </div>
+            </div>
+          </button>
         </div>
 
         {/* Comments */}
