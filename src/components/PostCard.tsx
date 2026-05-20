@@ -62,6 +62,9 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
   };
 
   const handleDeletePost = async () => {
+    const confirmed = window.confirm('Are you sure you want to delete this post? This action cannot be undone.');
+    if (!confirmed) return;
+
     try {
       await postService.deletePost(post._id);
       onDeletePost?.(post._id);

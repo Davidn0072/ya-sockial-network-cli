@@ -5,6 +5,7 @@ import type { Post } from '../services/postService';
 import { TopNavbar } from '../components/TopNavbar';
 import { PostActions } from '../components/PostActions';
 import { CommentsSection } from '../components/CommentsSection';
+import CreatePostModal from '../components/CreatePostModal';
 import { fetchLikesStats } from '../services/likesService';
 
 export function PostDetailPage() {
@@ -16,6 +17,8 @@ export function PostDetailPage() {
   const [commentsCount, setCommentsCount] = useState(0);
   const [filesCount, setFilesCount] = useState(0);
   const [showComments, setShowComments] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<{ _id: string; content: string } | null>(null);
 
   useEffect(() => {
     if (postId) {
@@ -52,6 +55,37 @@ export function PostDetailPage() {
       }
     } catch (err) {
       console.error('Error loading likes stats:', err);
+    }
+  };
+
+  const handleEditPost = async (post: Post) => {
+    try {
+      const fullPost = await postService.getPostById(post._id);
+      setEditingPost({ _id: fullPost._id, content: fullPost.content });
+      setIsCreatePostOpen(true);
+    } catch (error) {
+      console.error('Error loading post for editing:', error);
+    }
+  };
+
+  const handlePostUpdated = () => {
+    loadPost();
+    setIsCreatePostOpen(false);
+    setEditingPost(null);
+  };
+
+  const handleDeletePost = async () => {
+    if (!post) return;
+
+    const confirmed = window.confirm('Are you sure you want to delete this post? This action cannot be undone.');
+    if (!confirmed) return;
+
+    try {
+      await postService.deletePost(post._id);
+      navigate(-1);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post');
     }
   };
 
@@ -163,6 +197,8 @@ export function PostDetailPage() {
               }}
               onFileIconClick={() => {}}
               onFilesClick={() => {}}
+              onEditClick={() => handleEditPost(post)}
+              onDeleteClick={handleDeletePost}
             />
 
             {/* Comments Section */}
@@ -180,6 +216,16 @@ export function PostDetailPage() {
             <p className="text-gray-600">Failed to load post</p>
           </div>
         )}
+
+        <CreatePostModal
+          isOpen={isCreatePostOpen}
+          onClose={() => {
+            setIsCreatePostOpen(false);
+            setEditingPost(null);
+          }}
+          onPostCreated={handlePostUpdated}
+          editingPost={editingPost}
+        />
       </div>
     </div>
   );
