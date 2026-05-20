@@ -206,24 +206,18 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
         />
       ) : (
         <div className="border-t border-gray-200 pt-3 mt-3 flex gap-4 justify-center">
-          {likesStats.total > 0 && (
-            <div className="flex flex-col items-center">
-              <span className="text-lg">❤️</span>
-              <span className="text-sm text-gray-600">{likesStats.total}</span>
-            </div>
-          )}
-          {commentsCount > 0 && (
-            <div className="flex flex-col items-center">
-              <span className="text-lg">💬</span>
-              <span className="text-sm text-gray-600">{commentsCount}</span>
-            </div>
-          )}
-          {filesCount > 0 && (
-            <div className="flex flex-col items-center">
-              <span className="text-lg">📎</span>
-              <span className="text-sm text-gray-600">{filesCount}</span>
-            </div>
-          )}
+          <div className="flex flex-col items-center">
+            <span className="text-lg">❤️</span>
+            <span className="text-sm text-gray-600">{likesStats.total}</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-lg">💬</span>
+            <span className="text-sm text-gray-600">{commentsCount}</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-lg">📎</span>
+            <span className="text-sm text-gray-600">{filesCount}</span>
+          </div>
         </div>
         )}
       </div>
