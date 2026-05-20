@@ -4,7 +4,12 @@ interface ReactionButtonProps {
   targetId: string;
   targetType: 'post' | 'comment';
   onReactionSuccess?: () => void;
-  onViewReactions?: () => void;
+  action?: 'reactions-list' | 'both'; // 'reactions-list' = thumb only, 'both' = with "Who Reacted" button
+}
+
+interface ReactionCountProps {
+  count: number;
+  onClick?: () => void;
 }
 
 const REACTION_TYPES = [
@@ -15,11 +20,23 @@ const REACTION_TYPES = [
   { type: 'funny', label: '😄', name: 'Funny' }
 ];
 
+export function ReactionCount({ count, onClick }: ReactionCountProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="text-2xl hover:scale-125 transition-all duration-300 cursor-pointer"
+      title="View reactions"
+    >
+      <span className="font-bold">{count}</span>
+    </button>
+  );
+}
+
 export function ReactionButton({
   targetId,
   targetType,
   onReactionSuccess,
-  onViewReactions
+  action = 'both'
 }: ReactionButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -135,15 +152,14 @@ export function ReactionButton({
               </div>
 
               {/* Who Reacted Button */}
-              {onViewReactions && (
+              {action === 'both' && (
                 <button
                   onClick={() => {
-                    onViewReactions();
                     setIsOpen(false);
                   }}
                   className="w-full text-center px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 transition-colors font-semibold rounded-lg mt-2"
                 >
-                  👥 Who Reacted
+                  👥 View Reactions
                 </button>
               )}
             </div>
