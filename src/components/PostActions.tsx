@@ -44,17 +44,13 @@ export function PostActions({
         {/* Reactions */}
         <div className="flex-1 flex gap-2">
           {/* Thumb Button - opens reactions list */}
-          <button
+          <ReactionButton
+            targetId={postId}
+            targetType="post"
+            onReactionSuccess={onReactionSuccess}
+            action="reactions-list"
             className={`${styles.actionButton} ${styles.actionButtonPurple} flex-1`}
-            title="Add reaction"
-          >
-            <ReactionButton
-              targetId={postId}
-              targetType="post"
-              onReactionSuccess={onReactionSuccess}
-              action="reactions-list"
-            />
-          </button>
+          />
           {/* Count - opens reactions popup */}
           <button
             onClick={onViewReactions}

@@ -33,14 +33,13 @@ export function CommentActions({
       {/* Reaction Buttons */}
       <div className="flex gap-2">
         {/* Thumb Button - opens reactions list */}
-        <button className="bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm border border-purple-200 cursor-pointer" title="Add reaction">
-          <ReactionButton
-            targetId={commentId}
-            targetType="comment"
-            onReactionSuccess={onReactionSuccess}
-            action="reactions-list"
-          />
-        </button>
+        <ReactionButton
+          targetId={commentId}
+          targetType="comment"
+          onReactionSuccess={onReactionSuccess}
+          action="reactions-list"
+          className="bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm border border-purple-200 cursor-pointer text-lg"
+        />
         {totalReactions > 0 && (
           <button
             onClick={onViewReactions}

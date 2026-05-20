@@ -5,6 +5,7 @@ interface ReactionButtonProps {
   targetType: 'post' | 'comment';
   onReactionSuccess?: () => void;
   action?: 'reactions-list' | 'both'; // 'reactions-list' = thumb only, 'both' = with "Who Reacted" button
+  className?: string; // Allow custom styling
 }
 
 interface ReactionCountProps {
@@ -36,7 +37,8 @@ export function ReactionButton({
   targetId,
   targetType,
   onReactionSuccess,
-  action = 'both'
+  action = 'both',
+  className
 }: ReactionButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -98,7 +100,7 @@ export function ReactionButton({
         ref={buttonRef}
         onClick={handleButtonClick}
         disabled={isLoading}
-        className="text-2xl hover:scale-125 transition-all duration-300 disabled:opacity-50 cursor-pointer"
+        className={className || "text-2xl hover:scale-125 transition-all duration-300 disabled:opacity-50 cursor-pointer"}
         title="React"
       >
         👍
