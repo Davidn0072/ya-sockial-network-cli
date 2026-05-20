@@ -261,6 +261,7 @@ export function UserProfilePage() {
                       key={post._id}
                       post={post}
                       onEditPost={handleEditPost}
+                      hideActions={true}
                     />
                   ))}
                 </div>

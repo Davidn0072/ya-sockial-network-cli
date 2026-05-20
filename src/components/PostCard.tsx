@@ -13,9 +13,10 @@ interface PostCardProps {
   post: Post;
   onEditPost?: (post: Post) => void;
   onDeletePost?: (postId: string) => void;
+  hideActions?: boolean;
 }
 
-export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
+export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }: PostCardProps) {
   const navigate = useNavigate();
   const [content, setContent] = useState(post.content);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -173,34 +174,42 @@ export function PostCard({ post, onEditPost, onDeletePost }: PostCardProps) {
       )}
 
       {/* Post Actions */}
-      <PostActions
-        postId={post._id}
-        likesStats={likesStats}
-        commentsCount={commentsCount}
-        filesCount={filesCount}
-        onReactionSuccess={loadLikesStats}
-        onViewReactions={() => setIsLikesPopupOpen(true)}
-        onCommentIconClick={() => {
-          setShowComments(true);
-          setShowFiles(false);
-          setFocusCommentInput(true);
-        }}
-        onCommentCountClick={() => {
-          setShowComments(!showComments);
-          if (!showComments) {
+      {!hideActions ? (
+        <PostActions
+          postId={post._id}
+          likesStats={likesStats}
+          commentsCount={commentsCount}
+          filesCount={filesCount}
+          onReactionSuccess={loadLikesStats}
+          onViewReactions={() => setIsLikesPopupOpen(true)}
+          onCommentIconClick={() => {
+            setShowComments(true);
             setShowFiles(false);
-          }
-        }}
-        onFileIconClick={() => setShowUploadModal(true)}
-        onFilesClick={() => {
-          setShowFiles(!showFiles);
-          if (!showFiles) {
-            setShowComments(false);
-          }
-        }}
-        onEditClick={() => onEditPost?.(post)}
-        onDeleteClick={handleDeletePost}
-      />
+            setFocusCommentInput(true);
+          }}
+          onCommentCountClick={() => {
+            setShowComments(!showComments);
+            if (!showComments) {
+              setShowFiles(false);
+            }
+          }}
+          onFileIconClick={() => setShowUploadModal(true)}
+          onFilesClick={() => {
+            setShowFiles(!showFiles);
+            if (!showFiles) {
+              setShowComments(false);
+            }
+          }}
+          onEditClick={() => onEditPost?.(post)}
+          onDeleteClick={handleDeletePost}
+        />
+      ) : (
+        <div className="border-t border-gray-200 pt-3 mt-3 flex gap-4 text-sm text-gray-600">
+          {likesStats.total > 0 && <span>❤️ {likesStats.total}</span>}
+          {commentsCount > 0 && <span>💬 {commentsCount}</span>}
+          {filesCount > 0 && <span>📎 {filesCount}</span>}
+        </div>
+      )}
 
       {/* Files Grid */}
       {showFiles && filesCount > 0 && (
