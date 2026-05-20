@@ -113,7 +113,7 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
   const userName = typeof post.userId === 'object' ? post.userId.name : 'Unknown User';
 
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-100">
+    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-100 flex flex-col h-full">
       {/* Post Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -174,8 +174,9 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
       )}
 
       {/* Post Actions */}
-      {!hideActions ? (
-        <PostActions
+      <div className="mt-auto">
+        {!hideActions ? (
+          <PostActions
           postId={post._id}
           likesStats={likesStats}
           commentsCount={commentsCount}
@@ -204,12 +205,28 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
           onDeleteClick={handleDeletePost}
         />
       ) : (
-        <div className="border-t border-gray-200 pt-3 mt-3 flex gap-4 text-sm text-gray-600">
-          {likesStats.total > 0 && <span>❤️ {likesStats.total}</span>}
-          {commentsCount > 0 && <span>💬 {commentsCount}</span>}
-          {filesCount > 0 && <span>📎 {filesCount}</span>}
+        <div className="border-t border-gray-200 pt-3 mt-3 flex gap-4 justify-center">
+          {likesStats.total > 0 && (
+            <div className="flex flex-col items-center">
+              <span className="text-lg">❤️</span>
+              <span className="text-sm text-gray-600">{likesStats.total}</span>
+            </div>
+          )}
+          {commentsCount > 0 && (
+            <div className="flex flex-col items-center">
+              <span className="text-lg">💬</span>
+              <span className="text-sm text-gray-600">{commentsCount}</span>
+            </div>
+          )}
+          {filesCount > 0 && (
+            <div className="flex flex-col items-center">
+              <span className="text-lg">📎</span>
+              <span className="text-sm text-gray-600">{filesCount}</span>
+            </div>
+          )}
         </div>
-      )}
+        )}
+      </div>
 
       {/* Files Grid */}
       {showFiles && filesCount > 0 && (
