@@ -24,7 +24,7 @@ export function UserSearchDropdown({
 
   const handleSearch = async (value: string) => {
     setSearchQuery(value);
-    if (value.trim().length < 2) {
+    if (value.trim().length < 1) {
       setUserSuggestions([]);
       setShowSuggestions(false);
       setNextCursor(null);

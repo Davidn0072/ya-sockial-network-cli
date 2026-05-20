@@ -255,7 +255,7 @@ export function UserProfilePage() {
             {posts.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">User Posts</h2>
-                <div className="space-y-6 mb-6">
+                <div className="grid grid-cols-4 gap-4 mb-6">
                   {posts.map((post) => (
                     <PostCard
                       key={post._id}
