@@ -384,9 +384,13 @@ export function ChatPage() {
       </div>
 
       <div className="flex-1 flex flex-col bg-gray-100 border-t border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-300 bg-white">
+          <h2 className="text-2xl font-bold text-gray-800">🔒 Private Chat</h2>
+        </div>
+
         {privateChats.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full p-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-700">🔒 Private Chat</h3>
+          <div className="flex-1 flex flex-col items-center justify-center p-6">
+            <h3 className="text-lg font-semibold mb-4 text-gray-700">Start a new conversation</h3>
             <div className="w-full max-w-xs">
               <UserSearchDropdown onUserSelect={handlePrivateUserSelect} placeholder="👤 Start private chat..." />
             </div>
