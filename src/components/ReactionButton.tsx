@@ -121,7 +121,7 @@ export function ReactionButton({
             style={{
               top: `${popupPosition.top}px`,
               left: `${popupPosition.left}px`,
-              transform: 'translateX(-50%) scale(1)',
+              transform: 'translateX(-50%) translateY(-50%) scale(1)',
               animation: 'popIn 0.3s ease-out'
             }}
           >
@@ -129,17 +129,17 @@ export function ReactionButton({
               @keyframes popIn {
                 from {
                   opacity: 0;
-                  transform: translateX(-50%) scale(0.8);
+                  transform: translateX(-50%) translateY(-50%) scale(0.8);
                 }
                 to {
                   opacity: 1;
-                  transform: translateX(-50%) scale(1);
+                  transform: translateX(-50%) translateY(-50%) scale(1);
                 }
               }
             `}</style>
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl p-5 border border-gray-150">
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl p-3 border border-gray-150">
               {/* Emojis Row */}
-              <div className="flex gap-3 pb-4 border-b border-gray-200 justify-center">
+              <div className="flex gap-2 pb-2 border-b border-gray-200 justify-center">
                 {REACTION_TYPES.map((reaction) => (
                   <button
                     key={reaction.type}

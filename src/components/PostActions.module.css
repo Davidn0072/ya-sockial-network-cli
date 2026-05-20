@@ -42,9 +42,9 @@
 
 /* Purple variant - Reactions */
 .actionButtonPurple {
-  background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);
+  background: linear-gradient(135deg, #e9d5ff 0%, #ddd6fe 100%);
   color: #7c3aed;
-  border: 1px solid #e9d5ff;
+  border: 1px solid #d8b4fe;
 }
 
 .actionButtonPurple:hover {
