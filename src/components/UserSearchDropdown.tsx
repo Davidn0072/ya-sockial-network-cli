@@ -11,12 +11,14 @@ interface UserSearchDropdownProps {
   onUserSelect: (user: User) => void;
   placeholder?: string;
   autoFocus?: boolean;
+  listOffsetUp?: number;
 }
 
 export function UserSearchDropdown({
   onUserSelect,
   placeholder = '👤 Search users...',
   autoFocus = false,
+  listOffsetUp = 0,
 }: UserSearchDropdownProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,6 +118,7 @@ export function UserSearchDropdown({
       {showSuggestions && (
         <div
           className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10"
+          style={listOffsetUp ? { transform: `translateY(-${listOffsetUp}px)` } : undefined}
           onMouseDown={(e) => e.preventDefault()}
         >
           {userSuggestions.length > 0 ? (
