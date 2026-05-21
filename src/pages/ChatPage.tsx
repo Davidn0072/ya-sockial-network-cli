@@ -96,20 +96,21 @@ function PrivateChatView({ chat, user, socketConnected, onMessageChange, onSubmi
             <p>No messages yet. Start chatting!</p>
           </div>
         ) : (
-          chat.messages.map((msg, idx) => (
-            <div key={idx} className="flex justify-start">
-              <div
-                className={`max-w-xs px-4 py-2 rounded-lg ${
-                  msg.from === user?.name
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-900'
-                }`}
-              >
-                <p className="text-sm font-semibold opacity-75">{msg.from}</p>
-                <p className="break-words">{msg.msg}</p>
+          chat.messages.map((msg, idx) => {
+            const isOwn = msg.from === user?.name;
+            return (
+              <div key={idx} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  className={`max-w-xs px-4 py-2 rounded-lg ${
+                    isOwn ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'
+                  }`}
+                >
+                  <p className="text-sm font-semibold opacity-75">{isOwn ? 'You' : msg.from}</p>
+                  <p className="break-words">{msg.msg}</p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -154,6 +155,7 @@ export function ChatPage() {
   const [activePrivateTab, setActivePrivateTab] = useState<string | null>(null);
   const privateInputRefs = useRef<{ [userId: string]: HTMLInputElement | null }>({});
   const privateChatsRef = useRef<PrivateChat[]>([]);
+  const currentUserNameRef = useRef<string | null>(null);
   const joinedPrivateRoomsRef = useRef<Set<string>>(new Set());
 
   const focusInput = () => {
@@ -226,6 +228,10 @@ export function ChatPage() {
   }, [privateChats]);
 
   useEffect(() => {
+    currentUserNameRef.current = user?.name ?? null;
+  }, [user?.name]);
+
+  useEffect(() => {
     if (!token) {
       console.log('No token, cannot connect');
       return;
@@ -251,12 +257,15 @@ export function ChatPage() {
     });
 
     socket.on('private message', (data: Message) => {
+      if (data.from === currentUserNameRef.current) return;
+
+      const incoming: Message = { ...data, timestamp: Date.now() };
       setPrivateChats(prev => {
         const chat = prev.find(c => c.userName === data.from);
         if (!chat) return prev;
         return prev.map(c =>
           c.userId === chat.userId
-            ? { ...c, messages: [...c.messages, { ...data, timestamp: Date.now() }] }
+            ? { ...c, messages: [...c.messages, incoming] }
             : c
         );
       });
@@ -318,14 +327,22 @@ export function ChatPage() {
     e.preventDefault();
     const socket = socketRef.current;
 
-    if (chat.messageInput.trim() && socket?.connected) {
+    if (chat.messageInput.trim() && socket?.connected && user?.name) {
+      const msg = chat.messageInput.trim();
+      const outgoing: Message = {
+        from: user.name,
+        msg,
+        timestamp: Date.now()
+      };
       socket.emit('private message', {
         targetUserId: chat.userId,
-        msg: chat.messageInput
+        msg
       });
       setPrivateChats(prev =>
         prev.map(c =>
-          c.userId === chat.userId ? { ...c, messageInput: '' } : c
+          c.userId === chat.userId
+            ? { ...c, messages: [...c.messages, outgoing], messageInput: '' }
+            : c
         )
       );
       requestAnimationFrame(() => {
