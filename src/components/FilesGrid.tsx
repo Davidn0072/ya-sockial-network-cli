@@ -4,10 +4,11 @@ import { FileItem as FileItemComponent } from './FileItem';
 
 interface FilesGridProps {
   postId: string;
+  prependFile?: FileItem | null;
   onFileDeleted?: (fileId: string) => void;
 }
 
-export function FilesGrid({ postId, onFileDeleted }: FilesGridProps) {
+export function FilesGrid({ postId, prependFile, onFileDeleted }: FilesGridProps) {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -22,7 +23,13 @@ export function FilesGrid({ postId, onFileDeleted }: FilesGridProps) {
       if (cursor) {
         setFiles(prev => [...prev, ...response.files]);
       } else {
-        setFiles(response.files);
+        setFiles(() => {
+          const loaded = response.files;
+          if (prependFile && !loaded.some(f => f._id === prependFile._id)) {
+            return [prependFile, ...loaded];
+          }
+          return loaded;
+        });
       }
       setNextCursor(response.nextCursor);
     } catch (err) {
@@ -36,6 +43,14 @@ export function FilesGrid({ postId, onFileDeleted }: FilesGridProps) {
   useEffect(() => {
     loadFiles();
   }, [postId]);
+
+  useEffect(() => {
+    if (!prependFile) return;
+    setFiles(prev => {
+      if (prev.some(f => f._id === prependFile._id)) return prev;
+      return [prependFile, ...prev];
+    });
+  }, [prependFile]);
 
   const handleFileDeleted = (fileId: string) => {
     setFiles(files.filter(f => f._id !== fileId));

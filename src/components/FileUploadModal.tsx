@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
-import fileService from '../services/fileService';
+import fileService, { type FileItem } from '../services/fileService';
 import styles from './FileUploadModal.module.css';
 
 interface FileUploadModalProps {
   isOpen: boolean;
   postId: string;
   onClose: () => void;
-  onFileUploaded?: () => void;
+  onFileUploaded?: (file: FileItem) => void;
 }
 
 export default function FileUploadModal({ isOpen, postId, onClose, onFileUploaded }: FileUploadModalProps) {
@@ -29,7 +29,7 @@ export default function FileUploadModal({ isOpen, postId, onClose, onFileUploade
     setStatusType('');
 
     try {
-      await fileService.uploadFile(postId, file);
+      const uploadedFile = await fileService.uploadFile(postId, file);
 
       setStatus('File uploaded successfully!');
       setStatusType('success');
@@ -40,7 +40,7 @@ export default function FileUploadModal({ isOpen, postId, onClose, onFileUploade
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
-        onFileUploaded?.();
+        onFileUploaded?.(uploadedFile);
         onClose();
       }, 1000);
     } catch (error) {

@@ -8,6 +8,7 @@ import LikesPopup from './LikesPopup';
 import { CommentsSection } from './CommentsSection';
 import { fetchLikesStats } from '../services/likesService';
 import FileUploadModal from './FileUploadModal';
+import type { FileItem } from '../services/fileService';
 
 interface PostCardProps {
   post: Post;
@@ -28,6 +29,7 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
   const [likesStats, setLikesStats] = useState(post.likesStats || { total: 0, like: 0, love: 0, celebrate: 0, insightful: 0 });
   const [isLikesPopupOpen, setIsLikesPopupOpen] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [fileToPrepend, setFileToPrepend] = useState<FileItem | null>(null);
 
   useEffect(() => {
     loadLikesStats();
@@ -232,6 +234,7 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
       {showFiles && filesCount > 0 && (
         <FilesGrid
           postId={post._id}
+          prependFile={fileToPrepend}
           onFileDeleted={() => {
             setFilesCount(prev => Math.max(0, prev - 1));
           }}
@@ -261,9 +264,11 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
         isOpen={showUploadModal}
         postId={post._id}
         onClose={() => setShowUploadModal(false)}
-        onFileUploaded={() => {
+        onFileUploaded={(uploadedFile) => {
           setFilesCount(prev => prev + 1);
-          setShowFiles(true);
+          if (showFiles) {
+            setFileToPrepend(uploadedFile);
+          }
         }}
       />
     </div>
