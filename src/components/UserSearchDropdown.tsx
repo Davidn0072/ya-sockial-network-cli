@@ -20,7 +20,8 @@ export function UserSearchDropdown({
   const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [prevCursors, setPrevCursors] = useState<string[]>([]);
+  const [currentCursor, setCurrentCursor] = useState<string | null>(null);
+  const [prevCursors, setPrevCursors] = useState<(string | null)[]>([]);
 
   const handleSearch = async (value: string) => {
     setSearchQuery(value);
@@ -28,6 +29,7 @@ export function UserSearchDropdown({
       setUserSuggestions([]);
       setShowSuggestions(false);
       setNextCursor(null);
+      setCurrentCursor(null);
       setPrevCursors([]);
       return;
     }
@@ -36,6 +38,7 @@ export function UserSearchDropdown({
       const result = await userService.searchUsers(value);
       setUserSuggestions(result.users || []);
       setNextCursor(result.nextCursor || null);
+      setCurrentCursor(null);
       setPrevCursors([]);
       setShowSuggestions(true);
     } catch (error) {
@@ -51,9 +54,10 @@ export function UserSearchDropdown({
     if (!nextCursor || !searchQuery.trim()) return;
 
     try {
-      setPrevCursors([...prevCursors, nextCursor]);
+      setPrevCursors([...prevCursors, currentCursor]);
       const result = await userService.searchUsers(searchQuery, nextCursor);
       setUserSuggestions(result.users || []);
+      setCurrentCursor(nextCursor);
       setNextCursor(result.nextCursor || null);
     } catch (error) {
       console.error('Error loading more users:', error);
@@ -68,11 +72,12 @@ export function UserSearchDropdown({
     try {
       const newPrevCursors = [...prevCursors];
       const prevCursor = newPrevCursors.pop();
-      if (!prevCursor) return;
+      if (prevCursor === undefined) return;
       setPrevCursors(newPrevCursors);
       const result = await userService.searchUsers(searchQuery, prevCursor);
       setUserSuggestions(result.users || []);
-      setNextCursor(prevCursor);
+      setCurrentCursor(prevCursor);
+      setNextCursor(result.nextCursor || null);
     } catch (error) {
       console.error('Error loading previous users:', error);
     }
@@ -84,6 +89,7 @@ export function UserSearchDropdown({
     setUserSuggestions([]);
     setShowSuggestions(false);
     setNextCursor(null);
+    setCurrentCursor(null);
     setPrevCursors([]);
   };
 

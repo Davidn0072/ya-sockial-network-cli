@@ -37,8 +37,9 @@ export function SubToolbar({
   const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [currentCursor, setCurrentCursor] = useState<string | null>(null);
   const [currentQuery, setCurrentQuery] = useState('');
-  const [prevCursors, setPrevCursors] = useState<string[]>([]);
+  const [prevCursors, setPrevCursors] = useState<(string | null)[]>([]);
 
   const handleSearchAuthorChange = async (value: string) => {
     setSearchAuthor(value);
@@ -48,17 +49,23 @@ export function SubToolbar({
         const result = await userService.searchUsers(value);
         setUserSuggestions(result.users);
         setNextCursor(result.nextCursor);
+        setCurrentCursor(null);
+        setPrevCursors([]);
         setShowSuggestions(true);
       } catch (error) {
         console.error('Error searching users:', error);
         setUserSuggestions([]);
         setNextCursor(null);
+        setCurrentCursor(null);
+        setPrevCursors([]);
       }
     } else {
       setUserSuggestions([]);
       setShowSuggestions(false);
       setSelectedUserId(null);
       setNextCursor(null);
+      setCurrentCursor(null);
+      setPrevCursors([]);
     }
   };
 
@@ -67,9 +74,10 @@ export function SubToolbar({
     e.stopPropagation();
     if (!nextCursor || !currentQuery.trim()) return;
     try {
-      setPrevCursors([...prevCursors, nextCursor]);
+      setPrevCursors([...prevCursors, currentCursor]);
       const result = await userService.searchUsers(currentQuery, nextCursor);
       setUserSuggestions(result.users);
+      setCurrentCursor(nextCursor);
       setNextCursor(result.nextCursor);
     } catch (error) {
       console.error('Error loading more users:', error);
@@ -83,11 +91,12 @@ export function SubToolbar({
     try {
       const newPrevCursors = [...prevCursors];
       const prevCursor = newPrevCursors.pop();
-      if (!prevCursor) return;
+      if (prevCursor === undefined) return;
       setPrevCursors(newPrevCursors);
       const result = await userService.searchUsers(currentQuery, prevCursor);
       setUserSuggestions(result.users);
-      setNextCursor(prevCursor);
+      setCurrentCursor(prevCursor);
+      setNextCursor(result.nextCursor);
     } catch (error) {
       console.error('Error loading previous users:', error);
     }
@@ -118,6 +127,7 @@ export function SubToolbar({
     setShowSuggestions(false);
     setPrevCursors([]);
     setNextCursor(null);
+    setCurrentCursor(null);
     setCurrentQuery('');
     onSearch?.('', null);
   };
