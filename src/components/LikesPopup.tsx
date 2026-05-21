@@ -25,7 +25,8 @@ export default function LikesPopup({ isOpen, targetId, targetType = 'post', onCl
   const [stats, setStats] = useState<LikesStats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedType, setSelectedType] = useState('like');
-  const [cursor, setCursor] = useState<string | null>(null);
+  const [pageCursor, setPageCursor] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [prevCursors, setPrevCursors] = useState<(string | null)[]>([]);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
@@ -48,10 +49,11 @@ export default function LikesPopup({ isOpen, targetId, targetType = 'post', onCl
     if (!targetId) return;
 
     setIsLoadingUsers(true);
-    const { users: usersData, nextCursor } = await fetchLikesUsers(targetId, type, currentCursor, targetType);
+    const { users: usersData, nextCursor: fetchedNextCursor } = await fetchLikesUsers(targetId, type, currentCursor, targetType);
     setUsers(usersData);
-    setCursor(nextCursor);
-    setHasMore(nextCursor !== null && nextCursor !== undefined);
+    setPageCursor(currentCursor);
+    setNextCursor(fetchedNextCursor);
+    setHasMore(fetchedNextCursor !== null && fetchedNextCursor !== undefined);
     setIsLoadingUsers(false);
   }, [targetId, targetType]);
 
@@ -65,14 +67,15 @@ export default function LikesPopup({ isOpen, targetId, targetType = 'post', onCl
 
   const handleTypeClick = (type: string) => {
     setSelectedType(type);
-    setCursor(null);
+    setPageCursor(null);
+    setNextCursor(null);
     setPrevCursors([]);
   };
 
   const handleNext = () => {
-    if (hasMore && cursor) {
-      setPrevCursors([...prevCursors, cursor]);
-      loadUsers(selectedType, cursor);
+    if (hasMore && nextCursor) {
+      setPrevCursors([...prevCursors, pageCursor]);
+      loadUsers(selectedType, nextCursor);
     }
   };
 
