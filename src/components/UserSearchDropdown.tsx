@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { userService } from '../services/userService';
 
 interface User {
@@ -10,18 +10,28 @@ interface User {
 interface UserSearchDropdownProps {
   onUserSelect: (user: User) => void;
   placeholder?: string;
+  autoFocus?: boolean;
 }
 
 export function UserSearchDropdown({
   onUserSelect,
   placeholder = '👤 Search users...',
+  autoFocus = false,
 }: UserSearchDropdownProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [currentCursor, setCurrentCursor] = useState<string | null>(null);
   const [prevCursors, setPrevCursors] = useState<(string | null)[]>([]);
+
+  useEffect(() => {
+    if (!autoFocus) return;
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  }, [autoFocus]);
 
   const handleSearch = async (value: string) => {
     setSearchQuery(value);
@@ -96,6 +106,7 @@ export function UserSearchDropdown({
   return (
     <div className="relative">
       <input
+        ref={inputRef}
         type="text"
         value={searchQuery}
         onChange={(e) => handleSearch(e.target.value)}

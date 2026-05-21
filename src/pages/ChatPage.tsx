@@ -55,6 +55,7 @@ function SearchUserModal({ onUserSelect }: SearchUserModalProps) {
               </button>
             </div>
             <UserSearchDropdown
+              autoFocus
               onUserSelect={(user) => {
                 onUserSelect(user);
                 setIsOpen(false);
