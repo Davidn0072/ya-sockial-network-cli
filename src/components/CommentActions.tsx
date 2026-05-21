@@ -39,17 +39,15 @@ export function CommentActions({
           action="reactions-list"
           className="bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm border border-purple-200"
         />
-        {totalReactions > 0 && (
-          <button
-            type="button"
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 border border-purple-200 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm cursor-pointer"
-            title="View reactions"
-            onClick={onViewReactions}
-          >
-            <span className="text-xs font-bold text-purple-700">{totalReactions}</span>
-            <span className="text-xs font-bold text-purple-600">Reactions</span>
-          </button>
-        )}
+        <button
+          type="button"
+          className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-1.5 rounded-full font-bold text-purple-600 border border-purple-200 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 hover:shadow-sm cursor-pointer"
+          title="View reactions"
+          onClick={onViewReactions}
+        >
+          <span className="text-xs font-bold text-purple-700">{totalReactions}</span>
+          <span className="text-xs font-bold text-purple-600">Reactions</span>
+        </button>
       </div>
 
       {/* Reply Button */}
