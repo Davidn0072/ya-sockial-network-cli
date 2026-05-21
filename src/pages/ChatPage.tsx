@@ -353,62 +353,7 @@ export function ChatPage() {
         <p className="text-sm text-gray-600">👤 Logged in as: <span className="font-semibold text-gray-800">{user?.name}</span></p>
       </div>
 
-      <div className="flex-1 flex flex-col border-b-2 border-gray-200 bg-white">
-        <div className="px-6 py-3 border-b border-gray-100 bg-gray-50"></div>
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800">💬 General Chat</h2>
-          <p className={`text-sm mt-1 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
-            {isConnected ? '✓ Connected' : '✗ Disconnected'}
-          </p>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              <p>No messages yet. Start chatting!</p>
-            </div>
-          ) : (
-            messages.map((msg, idx) => (
-              <div key={idx} className="flex justify-start">
-                <div
-                  className={`max-w-xs px-4 py-2 rounded-lg ${
-                    msg.from === user?.name
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-900'
-                  }`}
-                >
-                  <p className="text-sm font-semibold opacity-75">{msg.from}</p>
-                  <p className="break-words">{msg.msg}</p>
-                </div>
-              </div>
-            ))
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="border-t border-gray-200 bg-white p-4">
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              disabled={!isConnected}
-            />
-            <button
-              type="submit"
-              disabled={!isConnected}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition"
-            >
-              Send
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <div className="flex-1 flex flex-col bg-gray-100 border-t border-gray-200">
+      <div className="flex-1 flex flex-col bg-gray-100 border-b-2 border-gray-200">
         <div className="px-6 py-4 border-b border-gray-300 bg-white">
           <h2 className="text-2xl font-bold text-gray-800">🔒 Private Chat</h2>
         </div>
@@ -468,6 +413,61 @@ export function ChatPage() {
             )}
           </>
         )}
+      </div>
+
+      <div className="flex-1 flex flex-col bg-white">
+        <div className="px-6 py-3 border-b border-gray-100 bg-gray-50"></div>
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-800">💬 General Chat</h2>
+          <p className={`text-sm mt-1 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
+            {isConnected ? '✓ Connected' : '✗ Disconnected'}
+          </p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              <p>No messages yet. Start chatting!</p>
+            </div>
+          ) : (
+            messages.map((msg, idx) => (
+              <div key={idx} className="flex justify-start">
+                <div
+                  className={`max-w-xs px-4 py-2 rounded-lg ${
+                    msg.from === user?.name
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-900'
+                  }`}
+                >
+                  <p className="text-sm font-semibold opacity-75">{msg.from}</p>
+                  <p className="break-words">{msg.msg}</p>
+                </div>
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className="border-t border-gray-200 bg-white p-4">
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              disabled={!isConnected}
+            />
+            <button
+              type="submit"
+              disabled={!isConnected}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition"
+            >
+              Send
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
