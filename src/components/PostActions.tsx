@@ -51,13 +51,15 @@ export function PostActions({
             action="both"
             className={`${styles.actionButton} ${styles.actionButtonPurple} flex-1`}
           />
-          {/* Count - display only */}
-          <div className={`${styles.actionButton} ${styles.actionButtonPurple} flex-1`}>
-            <div className="flex flex-col items-center">
-              <span className="font-bold text-lg">{totalReactions}</span>
-              <span className="text-xs">Reactions</span>
-            </div>
-          </div>
+          <button
+            type="button"
+            className={`${styles.actionButton} ${styles.actionButtonPurple} flex-1`}
+            title="View reactions"
+            onClick={onViewReactions}
+          >
+            <span className="font-bold text-lg">{totalReactions}</span>
+            <span className="text-xs">Reactions</span>
+          </button>
         </div>
 
         {/* Comments */}
