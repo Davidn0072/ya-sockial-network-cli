@@ -415,7 +415,7 @@ export function ChatPage() {
         )}
       </div>
 
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col border-t border-gray-200 bg-white">
         <div className="px-6 py-3 border-b border-gray-100 bg-gray-50"></div>
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">💬 General Chat</h2>
