@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import fileService, { type FileItem as FileItemType } from '../services/fileService';
 import { useAuth } from '../hooks/useAuth';
+import config from '../config';
 import styles from './FileItem.module.css';
 
 interface FileItemProps {
@@ -17,7 +18,7 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
   const [renameError, setRenameError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const fileUrl = `http://localhost:3000/uploads/${file.postId}/${file.storageFileName}`;
+  const fileUrl = `${config.API_URL}/uploads/${file.postId}/${file.storageFileName}`;
 
   const isImageFile = (): boolean => {
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
@@ -78,23 +79,18 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
 
   return (
     <div className="flex flex-col items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-colors relative group">
-      {/* File Preview */}
-      {isImageFile() ? (
-        <>
-          <img
-            src={fileUrl}
-            alt={file.originalFileName}
-            className="w-20 h-20 object-cover rounded"
-          />
-        </>
-      ) : (
-        <>
-          <div className="text-3xl">📎</div>
-        </>
-      )}
-
       {/* Filename or Rename Input */}
       {isRenaming ? (
+        <>
+          {isImageFile() ? (
+            <img
+              src={fileUrl}
+              alt={file.originalFileName}
+              className="w-20 h-20 object-cover rounded"
+            />
+          ) : (
+            <div className="text-3xl">📎</div>
+          )}
         <div className="w-full flex flex-col gap-1">
           <input
             type="text"
@@ -122,18 +118,41 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
             </button>
           </div>
         </div>
+        </>
       ) : (
         <>
-          <div className="text-xs text-center text-gray-700 truncate w-full" title={file.originalFileName}>
-            {file.originalFileName}
-          </div>
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open file in new tab"
+            className="flex flex-col items-center gap-2 w-full text-inherit no-underline cursor-pointer"
+          >
+            {isImageFile() ? (
+              <img
+                src={fileUrl}
+                alt={file.originalFileName}
+                className="w-20 h-20 object-cover rounded"
+              />
+            ) : (
+              <div className="text-3xl">📎</div>
+            )}
+            <span className="text-xs text-center text-gray-700 truncate w-full group-hover:text-blue-600 group-hover:underline">
+              {file.originalFileName}
+            </span>
+          </a>
 
           {/* Owner Actions - Hidden by default, shown on hover */}
           {isFileOwner && (
             <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
               {/* Rename Button */}
               <button
-                onClick={handleRenameClick}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleRenameClick();
+                }}
                 className={`${styles.actionButton} ${styles.actionButtonAmber}`}
                 title="Rename file"
               >
@@ -142,7 +161,12 @@ export function FileItem({ file, onFileDeleted, onFileRenamed }: FileItemProps) 
 
               {/* Delete Button */}
               <button
-                onClick={() => setShowDeleteConfirm(true)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowDeleteConfirm(true);
+                }}
                 className={`${styles.actionButton} ${styles.actionButtonRed}`}
                 title="Delete file"
               >
