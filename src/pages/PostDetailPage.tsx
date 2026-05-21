@@ -2,14 +2,21 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import postService from '../services/postService';
 import type { Post } from '../services/postService';
+import type { Comment } from '../services/commentService';
+import type { FileItem } from '../services/fileService';
 import { TopNavbar } from '../components/TopNavbar';
 import { PostCard } from '../components/PostCard';
 import CreatePostModal from '../components/CreatePostModal';
+
+const DETAIL_FILES_LIMIT = 4;
+const DETAIL_COMMENTS_LIMIT = 5;
 
 export function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
+  const [prefetchedComments, setPrefetchedComments] = useState<{ comments: Comment[]; nextCursor: string | null } | undefined>();
+  const [prefetchedFiles, setPrefetchedFiles] = useState<{ files: FileItem[]; nextCursor: string | null } | undefined>();
   const [loading, setLoading] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<{ _id: string; content: string } | null>(null);
@@ -23,10 +30,25 @@ export function PostDetailPage() {
   const loadPost = async () => {
     setLoading(true);
     try {
-      const data = await postService.getPostWithDetails(postId!);
+      const data = await postService.getPostWithDetails(
+        postId!,
+        DETAIL_FILES_LIMIT,
+        DETAIL_COMMENTS_LIMIT
+      );
       setPost(data.post);
+      setPrefetchedComments({
+        comments: data.comments?.comments ?? [],
+        nextCursor: data.comments?.nextCursor ?? null,
+      });
+      setPrefetchedFiles({
+        files: data.files?.files ?? [],
+        nextCursor: data.files?.nextCursor ?? null,
+      });
     } catch (err) {
       console.error('Error loading post:', err);
+      setPost(null);
+      setPrefetchedComments(undefined);
+      setPrefetchedFiles(undefined);
     } finally {
       setLoading(false);
     }
@@ -81,6 +103,9 @@ export function PostDetailPage() {
           <>
             <PostCard
               post={post}
+              detailMode
+              prefetchedComments={prefetchedComments}
+              prefetchedFiles={prefetchedFiles}
               onEditPost={handleEditPost}
               onDeletePost={handleDeletePost}
             />

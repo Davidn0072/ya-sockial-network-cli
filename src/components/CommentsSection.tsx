@@ -8,18 +8,28 @@ interface CommentsSectionProps {
   focusInput?: boolean;
   onFocusHandled?: () => void;
   onCommentAdded?: () => void;
+  pageSize?: number;
+  prefetched?: { comments: Comment[]; nextCursor: string | null };
 }
 
-export function CommentsSection({ postId, focusInput = false, onFocusHandled, onCommentAdded }: CommentsSectionProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function CommentsSection({
+  postId,
+  focusInput = false,
+  onFocusHandled,
+  onCommentAdded,
+  pageSize = 4,
+  prefetched,
+}: CommentsSectionProps) {
+  const [comments, setComments] = useState<Comment[]>(prefetched?.comments ?? []);
+  const [nextCursor, setNextCursor] = useState<string | null>(prefetched?.nextCursor ?? null);
+  const [isLoading, setIsLoading] = useState(!prefetched);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    if (prefetched) return;
     loadComments();
-  }, [postId]);
+  }, [postId, prefetched]);
 
   useEffect(() => {
     if (focusInput && inputRef.current) {
@@ -32,7 +42,7 @@ export function CommentsSection({ postId, focusInput = false, onFocusHandled, on
     setIsLoading(true);
     setError(null);
     try {
-      const response = await commentService.getCommentsByPostId(postId, 4, null);
+      const response = await commentService.getCommentsByPostId(postId, pageSize, null);
       setComments(response.comments);
       setNextCursor(response.nextCursor);
     } catch (err) {
@@ -48,7 +58,7 @@ export function CommentsSection({ postId, focusInput = false, onFocusHandled, on
     if (!nextCursor) return;
 
     try {
-      const response = await commentService.getCommentsByPostId(postId, 4, nextCursor);
+      const response = await commentService.getCommentsByPostId(postId, pageSize, nextCursor);
       setComments([...comments, ...response.comments]);
       setNextCursor(response.nextCursor);
     } catch (err) {

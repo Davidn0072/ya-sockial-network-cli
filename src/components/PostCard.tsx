@@ -9,20 +9,36 @@ import { CommentsSection } from './CommentsSection';
 import { fetchLikesStats } from '../services/likesService';
 import FileUploadModal from './FileUploadModal';
 import type { FileItem } from '../services/fileService';
+import type { Comment } from '../services/commentService';
+
+const DETAIL_COMMENTS_LIMIT = 5;
+const DETAIL_FILES_LIMIT = 4;
 
 interface PostCardProps {
   post: Post;
   onEditPost?: (post: Post) => void;
   onDeletePost?: (postId: string) => void;
   hideActions?: boolean;
+  detailMode?: boolean;
+  prefetchedComments?: { comments: Comment[]; nextCursor: string | null };
+  prefetchedFiles?: { files: FileItem[]; nextCursor: string | null };
 }
 
-export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }: PostCardProps) {
+export function PostCard({
+  post,
+  onEditPost,
+  onDeletePost,
+  hideActions = false,
+  detailMode = false,
+  prefetchedComments,
+  prefetchedFiles,
+}: PostCardProps) {
   const navigate = useNavigate();
   const [content, setContent] = useState(post.content);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showFiles, setShowFiles] = useState(false);
-  const [showComments, setShowComments] = useState(false);
+  const hasFiles = (post.filesCount ?? 0) > 0 || (prefetchedFiles?.files.length ?? 0) > 0;
+  const [showFiles, setShowFiles] = useState(detailMode && hasFiles);
+  const [showComments, setShowComments] = useState(detailMode);
   const [focusCommentInput, setFocusCommentInput] = useState(false);
   const [commentsCount, setCommentsCount] = useState(post.commentsCount || 0);
   const [filesCount, setFilesCount] = useState(post.filesCount || 0);
@@ -193,19 +209,19 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
           onViewReactions={() => setIsLikesPopupOpen(true)}
           onCommentIconClick={() => {
             setShowComments(true);
-            setShowFiles(false);
+            if (!detailMode) setShowFiles(false);
             setFocusCommentInput(true);
           }}
           onCommentCountClick={() => {
             setShowComments(!showComments);
-            if (!showComments) {
+            if (!detailMode && !showComments) {
               setShowFiles(false);
             }
           }}
           onFileIconClick={() => setShowUploadModal(true)}
           onFilesClick={() => {
             setShowFiles(!showFiles);
-            if (!showFiles) {
+            if (!detailMode && !showFiles) {
               setShowComments(false);
             }
           }}
@@ -231,10 +247,12 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
       </div>
 
       {/* Files Grid */}
-      {showFiles && filesCount > 0 && (
+      {showFiles && (
         <FilesGrid
           postId={post._id}
           prependFile={fileToPrepend}
+          pageSize={detailMode ? DETAIL_FILES_LIMIT : 4}
+          prefetched={detailMode ? prefetchedFiles : undefined}
           onFileDeleted={() => {
             setFilesCount(prev => Math.max(0, prev - 1));
           }}
@@ -248,6 +266,8 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
           focusInput={focusCommentInput}
           onFocusHandled={() => setFocusCommentInput(false)}
           onCommentAdded={() => setCommentsCount(prev => prev + 1)}
+          pageSize={detailMode ? DETAIL_COMMENTS_LIMIT : 4}
+          prefetched={detailMode ? prefetchedComments : undefined}
         />
       )}
 

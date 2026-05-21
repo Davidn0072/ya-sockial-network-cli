@@ -6,19 +6,27 @@ interface FilesGridProps {
   postId: string;
   prependFile?: FileItem | null;
   onFileDeleted?: (fileId: string) => void;
+  pageSize?: number;
+  prefetched?: { files: FileItem[]; nextCursor: string | null };
 }
 
-export function FilesGrid({ postId, prependFile, onFileDeleted }: FilesGridProps) {
-  const [files, setFiles] = useState<FileItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
+export function FilesGrid({
+  postId,
+  prependFile,
+  onFileDeleted,
+  pageSize = 4,
+  prefetched,
+}: FilesGridProps) {
+  const [files, setFiles] = useState<FileItem[]>(prefetched?.files ?? []);
+  const [isLoading, setIsLoading] = useState(!prefetched);
+  const [nextCursor, setNextCursor] = useState<string | null>(prefetched?.nextCursor ?? null);
   const [error, setError] = useState<string | null>(null);
 
   const loadFiles = async (cursor: string | null = null) => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fileService.getFilesByPostId(postId, 4, cursor);
+      const response = await fileService.getFilesByPostId(postId, pageSize, cursor);
 
       if (cursor) {
         setFiles(prev => [...prev, ...response.files]);
@@ -41,8 +49,9 @@ export function FilesGrid({ postId, prependFile, onFileDeleted }: FilesGridProps
   };
 
   useEffect(() => {
+    if (prefetched) return;
     loadFiles();
-  }, [postId]);
+  }, [postId, prefetched]);
 
   useEffect(() => {
     if (!prependFile) return;
