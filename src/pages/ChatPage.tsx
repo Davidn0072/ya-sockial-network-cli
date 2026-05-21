@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';
+import config from '../config';
 
 interface Message {
   from: string;
@@ -77,7 +78,7 @@ interface PrivateChatViewProps {
 }
 
 function PrivateChatView({ chat, user, socketConnected, onMessageChange, onSubmit, inputRef }: PrivateChatViewProps) {
-  const canSend = socketConnected && chat.isConnected;
+  const canSend = socketConnected;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -156,7 +157,6 @@ export function ChatPage() {
   const privateInputRefs = useRef<{ [userId: string]: HTMLInputElement | null }>({});
   const privateChatsRef = useRef<PrivateChat[]>([]);
   const currentUserNameRef = useRef<string | null>(null);
-  const joinedPrivateRoomsRef = useRef<Set<string>>(new Set());
 
   const focusInput = () => {
     requestAnimationFrame(() => {
@@ -165,17 +165,12 @@ export function ChatPage() {
   };
 
   const joinPrivateRoom = (targetUserId: string, targetUserName: string) => {
-    const id = String(targetUserId);
-    if (joinedPrivateRoomsRef.current.has(id)) return;
-
     const socket = socketRef.current;
-    if (!socket?.connected) return;
-
-    socket.emit('join private', { targetUserId: id, targetUserName });
-    joinedPrivateRoomsRef.current.add(id);
-    setPrivateChats(prev =>
-      prev.map(c => (c.userId === id ? { ...c, isConnected: true } : c))
-    );
+    if (!socket) return;
+    socket.emit('join private', {
+      targetUserId: String(targetUserId),
+      targetUserName,
+    });
   };
 
   const joinAllPrivateRooms = () => {
@@ -184,8 +179,13 @@ export function ChatPage() {
     });
   };
 
+  const setAllPrivateChatsConnected = (connected: boolean) => {
+    setPrivateChats(prev => prev.map(c => ({ ...c, isConnected: connected })));
+  };
+
   const handlePrivateUserSelect = (selectedUser: any) => {
-    const targetId = String(selectedUser._id);
+    const targetId = String(selectedUser._id ?? selectedUser.id ?? '');
+    if (!targetId || targetId === 'undefined') return;
     const existingChat = privateChats.find(chat => chat.userId === targetId);
     if (existingChat) {
       setActivePrivateTab(targetId);
@@ -213,7 +213,6 @@ export function ChatPage() {
   };
 
   const handleClosePrivateChat = (userId: string) => {
-    joinedPrivateRoomsRef.current.delete(userId);
     setPrivateChats(prev => {
       const remaining = prev.filter(c => c.userId !== userId);
       if (activePrivateTab === userId) {
@@ -237,8 +236,8 @@ export function ChatPage() {
       return;
     }
 
-    const socket = (window as any).io('http://localhost:3000/chat', {
-      auth: { token }
+    const socket = (window as any).io(`${config.API_URL}/chat`, {
+      auth: { token },
     });
 
     socketRef.current = socket;
@@ -246,18 +245,18 @@ export function ChatPage() {
     socket.on('connect', () => {
       console.log('Socket connected!');
       setIsConnected(true);
-      joinedPrivateRoomsRef.current.clear();
       joinAllPrivateRooms();
+      setAllPrivateChatsConnected(true);
       focusInput();
     });
 
     socket.on('chat message', (data: Message) => {
-      console.log('chat message:', data);
       setMessages(prev => [...prev, { ...data, timestamp: Date.now() }]);
     });
 
     socket.on('private message', (data: Message) => {
-      if (data.from === currentUserNameRef.current) return;
+      const senderName = currentUserNameRef.current;
+      if (data.from === senderName) return;
 
       const incoming: Message = { ...data, timestamp: Date.now() };
       setPrivateChats(prev => {
@@ -278,22 +277,19 @@ export function ChatPage() {
     socket.on('disconnect', () => {
       console.log('Socket disconnected');
       setIsConnected(false);
-      joinedPrivateRoomsRef.current.clear();
-      setPrivateChats(prev => prev.map(c => ({ ...c, isConnected: false })));
+      setAllPrivateChatsConnected(false);
     });
 
     return () => {
       socket.disconnect();
       socketRef.current = null;
-      joinedPrivateRoomsRef.current.clear();
     };
   }, [token]);
 
   useEffect(() => {
     if (!isConnected) return;
-    privateChats.forEach(chat => {
-      joinPrivateRoom(chat.userId, chat.userName);
-    });
+    privateChats.forEach(chat => joinPrivateRoom(chat.userId, chat.userName));
+    setAllPrivateChatsConnected(true);
   }, [privateChats.map(c => c.userId).join(','), isConnected]);
 
   // Auto-scroll to bottom
@@ -327,16 +323,19 @@ export function ChatPage() {
     e.preventDefault();
     const socket = socketRef.current;
 
-    if (chat.messageInput.trim() && socket?.connected && user?.name) {
+    const senderName = user?.name ?? currentUserNameRef.current;
+    if (chat.messageInput.trim() && socket && senderName) {
       const msg = chat.messageInput.trim();
+      joinPrivateRoom(chat.userId, chat.userName);
       const outgoing: Message = {
-        from: user.name,
+        from: senderName,
         msg,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       socket.emit('private message', {
-        targetUserId: chat.userId,
-        msg
+        targetUserId: String(chat.userId),
+        targetUserName: chat.userName,
+        msg,
       });
       setPrivateChats(prev =>
         prev.map(c =>
