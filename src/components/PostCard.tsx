@@ -149,6 +149,9 @@ export function PostCard({ post, onEditPost, onDeletePost, hideActions = false }
               href="#"
               onClick={(e) => {
                 e.preventDefault();
+                if (hideActions) {
+                  e.stopPropagation();
+                }
                 handleShowMore();
               }}
               className="text-blue-500 hover:underline font-bold cursor-pointer"
