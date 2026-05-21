@@ -99,7 +99,7 @@ function PrivateChatView({ chat, user, socketConnected, onMessageChange, onSubmi
           chat.messages.map((msg, idx) => {
             const isOwn = msg.from === user?.name;
             return (
-              <div key={idx} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+              <div key={idx} className="flex justify-start">
                 <div
                   className={`max-w-xs px-4 py-2 rounded-lg ${
                     isOwn ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'
