@@ -417,9 +417,9 @@ export function ChatPage() {
 
       <div className="flex-1 flex flex-col border-t border-gray-200 bg-white">
         <div className="px-6 py-3 border-b border-gray-100 bg-gray-50"></div>
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800">💬 General Chat</h2>
-          <p className={`text-sm mt-1 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
+        <div className="flex w-full flex-col items-center justify-center gap-1 px-6 py-4 border-b border-sky-200 bg-sky-100 min-h-[3.5rem]">
+          <span className="text-2xl font-bold text-sky-900 leading-none">💬 General Chat</span>
+          <p className={`m-0 text-sm leading-none ${isConnected ? 'text-green-700' : 'text-red-700'}`}>
             {isConnected ? '✓ Connected' : '✗ Disconnected'}
           </p>
         </div>
