@@ -70,12 +70,14 @@ function SearchUserModal({ onUserSelect }: SearchUserModalProps) {
 interface PrivateChatViewProps {
   chat: PrivateChat;
   user: User | null;
+  socketConnected: boolean;
   onMessageChange: (userId: string, message: string) => void;
   onSubmit: (e: React.FormEvent, chat: PrivateChat) => void;
   inputRef: React.MutableRefObject<{ [userId: string]: HTMLInputElement | null }>;
 }
 
-function PrivateChatView({ chat, user, onMessageChange, onSubmit, inputRef }: PrivateChatViewProps) {
+function PrivateChatView({ chat, user, socketConnected, onMessageChange, onSubmit, inputRef }: PrivateChatViewProps) {
+  const canSend = socketConnected && chat.isConnected;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -123,11 +125,11 @@ function PrivateChatView({ chat, user, onMessageChange, onSubmit, inputRef }: Pr
             onChange={(e) => onMessageChange(chat.userId, e.target.value)}
             placeholder="Type a message..."
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-            disabled={!chat.isConnected}
+            disabled={!canSend}
           />
           <button
             type="submit"
-            disabled={!chat.isConnected}
+            disabled={!canSend}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition"
           >
             Send
@@ -151,7 +153,8 @@ export function ChatPage() {
   const [privateChats, setPrivateChats] = useState<PrivateChat[]>([]);
   const [activePrivateTab, setActivePrivateTab] = useState<string | null>(null);
   const privateInputRefs = useRef<{ [userId: string]: HTMLInputElement | null }>({});
-  const privateChatSocketsRef = useRef<{ [userId: string]: any }>({});
+  const privateChatsRef = useRef<PrivateChat[]>([]);
+  const joinedPrivateRoomsRef = useRef<Set<string>>(new Set());
 
   const focusInput = () => {
     requestAnimationFrame(() => {
@@ -159,20 +162,42 @@ export function ChatPage() {
     });
   };
 
+  const joinPrivateRoom = (targetUserId: string, targetUserName: string) => {
+    const id = String(targetUserId);
+    if (joinedPrivateRoomsRef.current.has(id)) return;
+
+    const socket = socketRef.current;
+    if (!socket?.connected) return;
+
+    socket.emit('join private', { targetUserId: id, targetUserName });
+    joinedPrivateRoomsRef.current.add(id);
+    setPrivateChats(prev =>
+      prev.map(c => (c.userId === id ? { ...c, isConnected: true } : c))
+    );
+  };
+
+  const joinAllPrivateRooms = () => {
+    privateChatsRef.current.forEach(chat => {
+      joinPrivateRoom(chat.userId, chat.userName);
+    });
+  };
+
   const handlePrivateUserSelect = (selectedUser: any) => {
-    const existingChat = privateChats.find(chat => chat.userId === selectedUser._id);
+    const targetId = String(selectedUser._id);
+    const existingChat = privateChats.find(chat => chat.userId === targetId);
     if (existingChat) {
-      setActivePrivateTab(selectedUser._id);
+      setActivePrivateTab(targetId);
+      joinPrivateRoom(targetId, existingChat.userName);
       return;
     }
 
-    if (selectedUser._id === user?.id) {
+    if (targetId === String(user?.id)) {
       alert('❌ You cannot chat with yourself!');
       return;
     }
 
     const newChat: PrivateChat = {
-      userId: selectedUser._id,
+      userId: targetId,
       userName: selectedUser.name,
       messages: [],
       socket: null,
@@ -180,21 +205,25 @@ export function ChatPage() {
       messageInput: ''
     };
 
-    setPrivateChats([...privateChats, newChat]);
-    setActivePrivateTab(selectedUser._id);
+    setPrivateChats(prev => [...prev, newChat]);
+    setActivePrivateTab(targetId);
+    joinPrivateRoom(targetId, selectedUser.name);
   };
 
   const handleClosePrivateChat = (userId: string) => {
-    const socket = privateChatSocketsRef.current[userId];
-    if (socket) {
-      socket.disconnect();
-      delete privateChatSocketsRef.current[userId];
-    }
-    setPrivateChats(privateChats.filter(c => c.userId !== userId));
-    if (activePrivateTab === userId) {
-      setActivePrivateTab(privateChats.length > 1 ? privateChats[0].userId : null);
-    }
+    joinedPrivateRoomsRef.current.delete(userId);
+    setPrivateChats(prev => {
+      const remaining = prev.filter(c => c.userId !== userId);
+      if (activePrivateTab === userId) {
+        setActivePrivateTab(remaining.length > 0 ? remaining[0].userId : null);
+      }
+      return remaining;
+    });
   };
+
+  useEffect(() => {
+    privateChatsRef.current = privateChats;
+  }, [privateChats]);
 
   useEffect(() => {
     if (!token) {
@@ -211,6 +240,8 @@ export function ChatPage() {
     socket.on('connect', () => {
       console.log('Socket connected!');
       setIsConnected(true);
+      joinedPrivateRoomsRef.current.clear();
+      joinAllPrivateRooms();
       focusInput();
     });
 
@@ -219,15 +250,42 @@ export function ChatPage() {
       setMessages(prev => [...prev, { ...data, timestamp: Date.now() }]);
     });
 
+    socket.on('private message', (data: Message) => {
+      setPrivateChats(prev => {
+        const chat = prev.find(c => c.userName === data.from);
+        if (!chat) return prev;
+        return prev.map(c =>
+          c.userId === chat.userId
+            ? { ...c, messages: [...c.messages, { ...data, timestamp: Date.now() }] }
+            : c
+        );
+      });
+    });
+
+    socket.on('error', (error: { message?: string }) => {
+      console.error('Socket error:', error);
+    });
+
     socket.on('disconnect', () => {
       console.log('Socket disconnected');
       setIsConnected(false);
+      joinedPrivateRoomsRef.current.clear();
+      setPrivateChats(prev => prev.map(c => ({ ...c, isConnected: false })));
     });
 
     return () => {
       socket.disconnect();
+      socketRef.current = null;
+      joinedPrivateRoomsRef.current.clear();
     };
   }, [token]);
+
+  useEffect(() => {
+    if (!isConnected) return;
+    privateChats.forEach(chat => {
+      joinPrivateRoom(chat.userId, chat.userName);
+    });
+  }, [privateChats.map(c => c.userId).join(','), isConnected]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -238,65 +296,6 @@ export function ChatPage() {
   useEffect(() => {
     focusInput();
   }, []);
-
-  // Setup socket connection for each private chat
-  useEffect(() => {
-    if (!token) return;
-
-    privateChats.forEach((chat) => {
-      // Skip if already connected
-      if (privateChatSocketsRef.current[chat.userId]) return;
-
-      const socket = (window as any).io('http://localhost:3000/chat', {
-        auth: { token }
-      });
-
-      const userId = chat.userId;
-      const userName = chat.userName;
-
-      console.log('Creating socket for private chat:', userId);
-
-      socket.on('connect', () => {
-        console.log(`Connected to private chat with ${userName}`);
-        socket.emit('join private', {
-          targetUserId: userId,
-          targetUserName: userName
-        });
-
-        setPrivateChats(prev =>
-          prev.map(c =>
-            c.userId === userId ? { ...c, isConnected: true } : c
-          )
-        );
-      });
-
-      socket.on('private message', (data: Message) => {
-        console.log('private message received:', data);
-        setPrivateChats(prev =>
-          prev.map(c =>
-            c.userId === userId
-              ? { ...c, messages: [...c.messages, { ...data, timestamp: Date.now() }] }
-              : c
-          )
-        );
-      });
-
-      socket.on('disconnect', () => {
-        console.log(`Disconnected from private chat with ${userName}`);
-        setPrivateChats(prev =>
-          prev.map(c =>
-            c.userId === userId ? { ...c, isConnected: false } : c
-          )
-        );
-      });
-
-      socket.on('error', (error: any) => {
-        console.error(`Socket error for ${userName}:`, error);
-      });
-
-      privateChatSocketsRef.current[userId] = socket;
-    });
-  }, [privateChats.map(c => c.userId).join(','), token]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -317,14 +316,11 @@ export function ChatPage() {
 
   const handlePrivateSubmit = (e: React.FormEvent, chat: PrivateChat) => {
     e.preventDefault();
-    const socket = privateChatSocketsRef.current[chat.userId];
-    console.log('handlePrivateSubmit:', { messageInput: chat.messageInput, hasSocket: !!socket, socketId: socket?.id });
+    const socket = socketRef.current;
 
-    if (chat.messageInput.trim() && socket) {
-      console.log('Sending private message:', { targetUserId: chat.userId, msg: chat.messageInput });
+    if (chat.messageInput.trim() && socket?.connected) {
       socket.emit('private message', {
         targetUserId: chat.userId,
-        targetUserName: chat.userName,
         msg: chat.messageInput
       });
       setPrivateChats(prev =>
@@ -335,8 +331,6 @@ export function ChatPage() {
       requestAnimationFrame(() => {
         privateInputRefs.current[chat.userId]?.focus();
       });
-    } else {
-      console.warn('Cannot send:', { messageInput: chat.messageInput.trim(), hasSocket: !!socket });
     }
   };
 
@@ -358,60 +352,55 @@ export function ChatPage() {
           <span className="text-2xl font-bold text-violet-900 leading-none">🔒 Private Chat</span>
         </div>
 
-        {privateChats.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-700">Start a new conversation</h3>
-            <div className="w-full max-w-xs">
-              <UserSearchDropdown onUserSelect={handlePrivateUserSelect} placeholder="👤 Start private chat..." />
+        <div className="flex gap-0 border-b border-gray-300 bg-white overflow-x-auto items-center relative">
+          {privateChats.map((chat) => (
+            <div
+              key={chat.userId}
+              onClick={() => setActivePrivateTab(chat.userId)}
+              className={`flex items-center gap-2 px-4 py-2 cursor-pointer border-b-2 transition whitespace-nowrap ${
+                activePrivateTab === chat.userId
+                  ? 'border-b-blue-600 text-blue-600 bg-blue-50'
+                  : 'border-b-transparent text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <span>{chat.userName}</span>
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full ${
+                  chat.isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                }`}
+              >
+                {chat.isConnected ? '●' : '○'}
+              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClosePrivateChat(chat.userId);
+                }}
+                className="ml-1 text-gray-400 hover:text-red-600 transition"
+                title="Close chat"
+              >
+                ✕
+              </button>
             </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex gap-0 border-b border-gray-300 bg-white overflow-x-auto items-center relative">
-              {privateChats.map((chat) => (
-                <div
-                  key={chat.userId}
-                  onClick={() => setActivePrivateTab(chat.userId)}
-                  className={`flex items-center gap-2 px-4 py-2 cursor-pointer border-b-2 transition whitespace-nowrap ${
-                    activePrivateTab === chat.userId
-                      ? 'border-b-blue-600 text-blue-600 bg-blue-50'
-                      : 'border-b-transparent text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <span>{chat.userName}</span>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      chat.isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {chat.isConnected ? '●' : '○'}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleClosePrivateChat(chat.userId);
-                    }}
-                    className="ml-1 text-gray-400 hover:text-red-600 transition"
-                    title="Close chat"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <div className="flex-1"></div>
-              <SearchUserModal onUserSelect={handlePrivateUserSelect} />
-            </div>
+          ))}
+          <div className="flex-1"></div>
+          <SearchUserModal onUserSelect={handlePrivateUserSelect} />
+        </div>
 
-            {activePrivateTab && (
-              <PrivateChatView
-                chat={privateChats.find(c => c.userId === activePrivateTab)!}
-                user={user}
-                onMessageChange={handleMessageChange}
-                onSubmit={handlePrivateSubmit}
-                inputRef={privateInputRefs}
-              />
-            )}
-          </>
+        {activePrivateTab && privateChats.some(c => c.userId === activePrivateTab) ? (
+          <PrivateChatView
+            chat={privateChats.find(c => c.userId === activePrivateTab)!}
+            user={user}
+            socketConnected={isConnected}
+            onMessageChange={handleMessageChange}
+            onSubmit={handlePrivateSubmit}
+            inputRef={privateInputRefs}
+          />
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center p-6 text-gray-500">
+            <p className="text-lg font-medium text-gray-700 mb-2">No private chats yet</p>
+            <p className="text-sm">Click <span className="font-semibold text-emerald-700">New Chat</span> to start a conversation</p>
+          </div>
         )}
       </div>
 
