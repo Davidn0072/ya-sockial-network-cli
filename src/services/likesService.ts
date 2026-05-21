@@ -1,4 +1,7 @@
-const LIKES_API_URL = 'http://localhost:3000/likes';
+import config from '../config';
+import { authService } from './authService';
+
+const LIKES_API_URL = `${config.API_URL}/likes`;
 
 export const REACTION_TYPES = [
   { type: 'like', label: '👍', name: 'Like' },
@@ -22,8 +25,8 @@ interface User {
 
 function getAuthHeaders() {
   return {
-    'x-access-token': localStorage.getItem('token') || '',
-    'Content-Type': 'application/json'
+    'x-access-token': authService.getToken() || '',
+    'Content-Type': 'application/json',
   };
 }
 
@@ -47,10 +50,11 @@ export async function fetchLikesStats(targetId: string, targetType: string = 'po
 export async function fetchLikesUsers(
   targetId: string,
   reactionType: string = 'all',
-  cursor: string | null = null
+  cursor: string | null = null,
+  targetType: string = 'post'
 ): Promise<{ users: User[]; nextCursor: string | null }> {
   try {
-    const params = new URLSearchParams({ limit: '10' });
+    const params = new URLSearchParams({ limit: '10', targetType });
     if (cursor) params.set('cursor', cursor);
 
     const url = reactionType === 'all'

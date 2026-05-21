@@ -48,19 +48,20 @@ export default function LikesPopup({ isOpen, targetId, targetType = 'post', onCl
     if (!targetId) return;
 
     setIsLoadingUsers(true);
-    const { users: usersData, nextCursor } = await fetchLikesUsers(targetId, type, currentCursor);
+    const { users: usersData, nextCursor } = await fetchLikesUsers(targetId, type, currentCursor, targetType);
     setUsers(usersData);
     setCursor(nextCursor);
     setHasMore(nextCursor !== null && nextCursor !== undefined);
     setIsLoadingUsers(false);
-  }, [targetId]);
+  }, [targetId, targetType]);
 
   useEffect(() => {
     if (!isOpen || !targetId) return;
 
     loadUsers(selectedType, null);
     setPrevCursors([]);
-  }, [isOpen, targetId, selectedType, loadUsers]);
+  }, [isOpen, targetId, selectedType]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const handleTypeClick = (type: string) => {
     setSelectedType(type);
