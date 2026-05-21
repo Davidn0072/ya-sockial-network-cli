@@ -105,7 +105,7 @@ function PrivateChatView({ chat, user, socketConnected, onMessageChange, onSubmi
                     isOwn ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'
                   }`}
                 >
-                  <p className="text-sm font-semibold opacity-75">{isOwn ? 'You' : msg.from}</p>
+                  <p className="text-sm font-semibold opacity-75">{msg.from}</p>
                   <p className="break-words">{msg.msg}</p>
                 </div>
               </div>
