@@ -354,8 +354,8 @@ export function ChatPage() {
       </div>
 
       <div className="flex-1 flex flex-col bg-gray-100 border-b-2 border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-300 bg-white">
-          <h2 className="text-2xl font-bold text-gray-800">🔒 Private Chat</h2>
+        <div className="flex w-full items-center justify-center px-6 py-4 border-b border-violet-200 bg-violet-100 min-h-[3.5rem]">
+          <span className="text-2xl font-bold text-violet-900 leading-none">🔒 Private Chat</span>
         </div>
 
         {privateChats.length === 0 ? (
