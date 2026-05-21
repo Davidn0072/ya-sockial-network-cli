@@ -25,6 +25,9 @@ const REACTION_TYPES = [
   { type: 'funny', label: '😄', name: 'Funny' }
 ];
 
+/** Set to true to show "Who Reacted" and the divider above it in the reaction picker */
+const SHOW_WHO_REACTED_LINK = false;
+
 export function ReactionCount({ count, onClick }: ReactionCountProps) {
   return (
     <button
@@ -176,7 +179,11 @@ export function ReactionButton({
             `}</style>
             <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl p-5 border border-gray-150">
               {/* Emojis Row */}
-              <div className="flex gap-3 pb-4 border-b border-gray-200 justify-center">
+              <div
+                className={`flex gap-3 justify-center ${
+                  SHOW_WHO_REACTED_LINK && action === 'both' ? 'pb-4 border-b border-gray-200' : ''
+                }`}
+              >
                 {REACTION_TYPES.map((reaction) => (
                   <button
                     key={reaction.type}
@@ -194,9 +201,10 @@ export function ReactionButton({
                 ))}
               </div>
 
-              {/* Who Reacted Button */}
-              {action === 'both' && (
+              {/* Who Reacted Button — hidden via SHOW_WHO_REACTED_LINK; open via reactions count button instead */}
+              {SHOW_WHO_REACTED_LINK && action === 'both' && (
                 <button
+                  type="button"
                   onClick={() => {
                     if (onViewReactions) {
                       onViewReactions();
