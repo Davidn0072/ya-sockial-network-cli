@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { authService } from '../services/authService';
+import { isTokenExpired } from '../utils/jwt';
 
 interface User {
   id: string;
@@ -30,8 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const savedUser = authService.getUser();
 
     if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(savedUser);
+      if (isTokenExpired(savedToken)) {
+        authService.logout();
+      } else {
+        setToken(savedToken);
+        setUser(savedUser);
+      }
     }
     setIsLoading(false);
   }, []);
